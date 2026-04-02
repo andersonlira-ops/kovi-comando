@@ -21,7 +21,7 @@
   --r:6px;--rl:10px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;background:var(--bg); overflow-x: hidden;}
+html,body{height:100%; background:var(--bg); overflow-x: hidden;}
 body{display:flex; flex-direction:column; font-family:var(--sans); color:var(--text); font-size:13px; overflow-y: auto;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--s1);}
@@ -45,12 +45,11 @@ button,input,select,textarea{font-family:var(--mono);}
 .kpir { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 18px; }
 .g2, .g3, .g12, .g21 { display: grid; gap: 12px; margin-bottom: 14px; grid-template-columns: 1fr; }
 
-/* REGRAS PARA DESKTOP (TELAS > 1024px) */
 @media (min-width: 1024px) {
   .g2 { grid-template-columns: 1fr 1fr; }
   .g3 { grid-template-columns: 1fr 1fr 1fr; }
-  .g12 { grid-template-columns: 1fr 2fr; }
-  .g21 { grid-template-columns: 2fr 1fr; }
+  .g12 { grid-template-columns: 1.2fr 2.8fr; }
+  .g21 { grid-template-columns: 2.8fr 1.2fr; }
   .kpir { grid-template-columns: repeat(5, 1fr); }
 }
 
@@ -79,98 +78,56 @@ button,input,select,textarea{font-family:var(--mono);}
 .sttl::before{content:'';width:2px;height:9px;background:var(--amber);border-radius:1px;flex-shrink:0;}
 
 .card{background:var(--s2);border:1px solid var(--border);border-radius:var(--rl);padding:15px; height: 100%;}
-.bsec{margin-bottom:28px;}
-.bhead{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-.bname{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--amber);}
-.bcnt{font-size:8px;color:var(--text2);padding:2px 7px;border:1px solid var(--border);border-radius:9px;}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:9px;}
 .vc{background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:13px;position:relative;overflow:hidden;transition:all .15s;}
-.vc:hover{transform:translateY(-2px);}
 .vc.ok{border-left:3px solid var(--green);}
 .vc.sold{border-left:3px solid var(--red);opacity:.65;}
 .vc.crit{border-left:3px solid var(--amber);box-shadow:0 0 10px rgba(240,160,0,.12);}
-.vc-pl{font-family:var(--mono);font-size:17px;font-weight:700;letter-spacing:1px;}
-.vc-mod{font-size:9px;color:var(--text2);margin-top:1px;margin-bottom:8px;}
-.vc-bat{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.vc-pl{font-family:var(--mono);font-size:17px;font-weight:700;}
+.vc-bat{display:flex;align-items:center;gap:7px;margin-top:8px;}
 .vc-bv{font-family:var(--mono);font-size:15px;font-weight:700;}
-.bbar{flex:1;height:4px;background:var(--s3);border-radius:2px;overflow:hidden;}
-.bbf{height:100%;border-radius:2px;transition:width .5s;}
-.vc-loc{font-size:8px;color:var(--text2);}
-.vcbdg{position:absolute;top:7px;right:7px;font-size:7px;letter-spacing:1px;padding:2px 6px;border-radius:3px;}
-.vcbdg.sold{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,23,68,.3);}
-.vcbdg.urg{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(240,160,0,.3);}
 
 .dtc-zone{background:var(--s2);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:14px;}
 .dtc-iw{display:flex;gap:7px;margin-bottom:8px;}
-.dtc-inp{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:9px 12px;font-size:14px;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;outline:none;transition:border-color .2s; width: 50%;}
+.dtc-inp{flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:9px 12px;font-size:14px;font-family:var(--mono);outline:none; text-transform:uppercase;}
 .dtc-add{background:var(--amber);border:none;color:#000;width:40px;height:40px;border-radius:var(--r);cursor:pointer;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.norm-prev{font-size:8px;color:var(--text2);min-height:13px;margin-top:3px;}
-.nchip{display:inline-flex;align-items:center;gap:4px;background:var(--amber-dim);border:1px solid var(--amber);border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:8px;color:var(--amber);margin-right:3px;}
-.chips{display:flex;flex-wrap:wrap;gap:5px;min-height:30px;}
-.chip{display:flex;align-items:center;gap:5px;padding:5px 9px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);cursor:pointer;transition:all .15s;}
-.chip:hover,.chip.sel{border-color:var(--amber);background:var(--s3);}
-.chip-c{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber);}
 
+.dres{background:var(--s2);border:1px solid var(--border);border-radius:var(--rl);padding:16px;}
 .dbig{background:var(--s3);border:1px solid var(--border3);border-radius:7px;padding:11px 14px;display:inline-block;margin-bottom:12px;}
 .dcode{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--blue);}
 .dsev{font-size:8px;font-weight:700;margin-top:2px;}
 .dblk{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:11px;margin-bottom:9px;}
+.dlbl{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--text2);margin-bottom:7px;}
 .dcont{font-size:10px;color:#cbd5e1;line-height:1.8;}
-.step{display:flex;gap:7px;padding:7px;margin-bottom:4px;background:var(--s2);border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .15s;}
-.snum{width:18px;height:18px;border-radius:50%;background:var(--s3);border:1px solid var(--border3);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--amber);flex-shrink:0;font-weight:700;}
-.stxt{font-size:9px;color:var(--text2);line-height:1.5;flex:1;}
-.ai-out{background:var(--s2);border:1px solid rgba(41,182,246,.3);border-radius:var(--rl);padding:14px;margin-top:10px;}
-.ai-cont{font-size:10px;color:#cbd5e1;line-height:1.9;white-space:pre-wrap;}
-.aibtn{background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);padding:5px 13px;border-radius:3px;cursor:pointer;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;transition:all .15s;margin-top:9px;}
 
 .rcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;margin-bottom:18px;}
 .rc{background:var(--s2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:all .15s;}
 .rc.eu{border-left:4px solid var(--red);}
 .rc.ei{border-left:4px solid var(--amber);}
 .rc.mec{border-left:4px solid var(--blue);}
-.rch{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
 .rcpl{font-family:var(--mono);font-size:15px;font-weight:700;}
 .rcbdg{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;font-weight:700;}
-.bdg-eu{background:var(--red-dim);color:var(--red);}
-.bdg-ei{background:var(--amber-dim);color:var(--amber);}
-.bdg-mec{background:var(--blue-dim);color:var(--blue);}
-.rcb{padding:11px;}
-.rcbv{font-family:var(--mono);font-size:17px;font-weight:700;margin-bottom:7px;}
-.rccode{font-family:var(--mono);font-size:8px;padding:2px 6px;border:1px solid var(--border2);border-radius:3px;color:var(--text2);cursor:pointer;}
-.rcins{font-size:9px;color:var(--text2);padding:5px 7px;background:var(--bg);border-radius:3px;border-left:2px solid var(--border3);}
-.twrap{overflow-x:auto;}
-table.dt{width:100%;border-collapse:collapse;font-size:11px;}
-table.dt th{font-size:8px;color:var(--text2);padding:7px 9px;text-align:left;border-bottom:1px solid var(--border2);text-transform:uppercase;letter-spacing:1.5px;}
-table.dt td{padding:8px 9px;border-bottom:1px solid var(--border);color:var(--text2);}
-.tag{padding:2px 6px;border-radius:9px;font-size:8px;letter-spacing:.5px;}
-.tc{background:var(--red-dim);color:var(--red);}
-.tw{background:var(--amber-dim);color:var(--amber);}
-.tok{background:var(--green-dim);color:var(--green);}
-.ti{background:var(--blue-dim);color:var(--blue);}
 
-.cfinp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:7px 11px;font-size:10px;outline:none;transition:border-color .2s;margin-bottom:8px;}
-.cfbtn{padding:6px 14px;border-radius:var(--r);cursor:pointer;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid;transition:all .15s;}
+.cfinp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);padding:7px 11px;font-size:10px;outline:none;margin-bottom:8px;}
+.cfbtn{padding:6px 14px;border-radius:var(--r);cursor:pointer;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid;}
 .cfbtn.a{border-color:var(--amber);color:var(--amber);background:transparent;}
+.cfst { font-size: 8px; margin-top: 4px; font-weight: bold; }
 
-.lwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:260px;gap:12px;}
-.spin{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.hmap{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;}
-.hmc{aspect-ratio:1;border-radius:2px;background:var(--s3);}
-.chwrap{position:relative;min-height:200px; width: 100%;}
+.chwrap{position:relative; min-height:200px; width: 100%;}
 .empt{display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;gap:9px;text-align:center;}
 
 #nbar{position:fixed;bottom:0;left:0;right:0;z-index:9999;padding:7px 18px;font-size:9px;font-family:var(--mono);letter-spacing:1px;display:flex;align-items:center;gap:9px;opacity:0;transition:opacity .4s;pointer-events:none;}
 #nbar.show{opacity:1;}
 
-/* AJUSTES MOBILE EXTRAS */
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--text3);}
+.sdot.live{background:var(--green);animation:pulse 2s infinite;}
+.sdot.err{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
 @media (max-width: 768px) {
   #topbar { height: auto; flex-direction: column; }
   .brand { border-right: none; width: 100%; justify-content: center; }
   .topbar-r { border-left: none; width: 100%; justify-content: space-between; padding: 10px 18px; }
-  .kpi-val { font-size: 20px; }
-  .pi { padding: 12px; }
-  .dtc-inp { width: 100%; }
 }
 </style>
 </head>
@@ -188,177 +145,99 @@ table.dt td{padding:8px 9px;border-bottom:1px solid var(--border);color:var(--te
     <div class="nav-tab" data-pg="cfg" onclick="pg('cfg')">⚙ CONFIG</div>
   </div>
   <div class="topbar-r">
-    <div class="spill"><div class="sdot" id="sd1"></div><span id="st1" style="font-size:8px;">ASB</span></div>
-    <div class="spill" style="margin-left:6px;"><div class="sdot" id="sd2"></div><span id="st2" style="font-size:8px;">MB</span></div>
-    <button class="tbtn primary" onclick="syncAll()">↺ SYNC</button>
+    <div class="spill" style="display:flex; align-items:center; gap:5px;"><div class="sdot" id="sd1"></div><span id="st1" style="font-size:8px;">ASB</span></div>
+    <div class="spill" style="margin-left:6px; display:flex; align-items:center; gap:5px;"><div class="sdot" id="sd2"></div><span id="st2" style="font-size:8px;">MB</span></div>
+    <button class="tbtn primary" onclick="syncAll()" style="margin-left:10px; background:transparent; border:1px solid var(--amber); color:var(--amber); padding:4px 8px; border-radius:3px; cursor:pointer; font-size:9px;">↺ SYNC</button>
   </div>
 </div>
+
 <div id="app">
-
-<div class="page active" id="page-dash">
-<div class="pi">
-  <div class="kpir">
-    <div class="kpi r"><div class="kpi-lbl">Bat Críticas</div><div class="kpi-val" id="kd1">—</div><div class="kpi-sub">&lt;12V na frota</div></div>
-    <div class="kpi a"><div class="kpi-lbl">Elétrica Urgente</div><div class="kpi-val" id="kd2">—</div><div class="kpi-sub">aguardando oficina</div></div>
-    <div class="kpi b"><div class="kpi-lbl">Diagnósticos</div><div class="kpi-val" id="kd3">—</div><div class="kpi-sub">processados</div></div>
-    <div class="kpi g"><div class="kpi-lbl">Disponíveis</div><div class="kpi-val" id="kd4">—</div><div class="kpi-sub">frota ativa</div></div>
-    <div class="kpi p"><div class="kpi-lbl">Tensão Média</div><div class="kpi-val" id="kd5">—</div><div class="kpi-sub">toda frota</div></div>
-  </div>
-  <div class="g12">
-    <div class="card"><div class="sttl">Baterias Críticas</div><div id="db-list"><div class="empt"><div class="emico">🔋</div><div class="emtxt">Aguardando Monitor ASB</div></div></div></div>
-    <div class="card"><div class="sttl">Roteamento Geral</div><div class="chwrap"><canvas id="dc1"></canvas></div></div>
-  </div>
-  <div class="g2">
-    <div class="card"><div class="sttl">DTCs Mais Frequentes</div><div id="db-dtc"><div class="empt"><div class="emico">⚡</div><div class="emtxt">Aguardando Metabase</div></div></div></div>
-    <div class="card"><div class="sttl">Alertas</div><div id="db-alerts"><div style="font-size:10px;color:var(--text2);padding:10px;border-radius:4px;border-left:2px solid var(--blue);background:var(--s3);">ℹ Configure as URLs em ⚙ Config e clique em ↺ SYNC</div></div></div>
-  </div>
-</div>
-</div>
-
-<div class="page" id="page-bat">
-<div class="pi">
-  <div class="kpir">
-    <div class="kpi g"><div class="kpi-lbl">Disponíveis</div><div class="kpi-val" id="kb1">—</div></div>
-    <div class="kpi r"><div class="kpi-lbl">Vendidos</div><div class="kpi-val" id="kb2">—</div></div>
-    <div class="kpi a"><div class="kpi-lbl">Bat Crítica</div><div class="kpi-val" id="kb3">—</div><div class="kpi-sub">&lt;12V</div></div>
-    <div class="kpi b"><div class="kpi-lbl">Total Frota</div><div class="kpi-val" id="kb4">—</div></div>
-    <div class="kpi p"><div class="kpi-lbl">Média Tensão</div><div class="kpi-val" id="kb5">—</div></div>
-  </div>
-  <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center; flex-wrap: wrap;">
-    <input type="text" id="bsrch" placeholder="PLACA OU MODELO..." oninput="filterB()" style="background:var(--s2);border:1px solid var(--border);border-radius:3px;color:var(--text);padding:6px 10px;font-size:10px;font-family:var(--mono);outline:none;flex:1;min-width: 150px; text-transform:uppercase;"/>
-    <button class="tbtn" onclick="loadASB()">↺</button>
-    <button class="tbtn" id="bf1" onclick="toggleBF('c')" style="border-color:var(--amber);color:var(--amber);">⚠ CRÍTICAS</button>
-    <button class="tbtn" id="bf2" onclick="toggleBF('v')">VENDIDOS</button>
-  </div>
-  <div id="bat-content"><div class="lwrap"><div class="spin"></div><div class="ltxt">Configure o URL do Monitor ASB em ⚙ Config</div></div></div>
-</div>
-</div>
-
-<div class="page" id="page-diag">
-<div class="pi">
-  <div class="dtc-zone">
-    <div class="sttl" style="margin-bottom:10px;">Entrada de DTCs — Normalização Automática</div>
-    <div class="dtc-iw">
-      <input type="text" id="dinp" class="dtc-inp" placeholder="Digite DTCs em qualquer formato..." onkeydown="if(event.key==='Enter')addDTCs()" oninput="prevNorm(this.value)"/>
-      <button class="dtc-add" onclick="addDTCs()">+</button>
+  <div class="page active" id="page-dash">
+    <div class="pi">
+      <div class="kpir">
+        <div class="kpi r"><div class="kpi-lbl">Bat Críticas</div><div class="kpi-val" id="kd1">—</div></div>
+        <div class="kpi a"><div class="kpi-lbl">Elétrica Urgente</div><div class="kpi-val" id="kd2">—</div></div>
+        <div class="kpi b"><div class="kpi-lbl">Diagnósticos</div><div class="kpi-val" id="kd3">—</div></div>
+        <div class="kpi g"><div class="kpi-lbl">Frota Ativa</div><div class="kpi-val" id="kd4">—</div></div>
+        <div class="kpi p"><div class="kpi-lbl">Tensão Média</div><div class="kpi-val" id="kd5">—</div></div>
+      </div>
+      <div class="g12">
+        <div class="card"><div class="sttl">Baterias Críticas</div><div id="db-list"><div class="empt">Sincronize para carregar</div></div></div>
+        <div class="card"><div class="sttl">Roteamento Geral</div><div class="chwrap"><canvas id="dc1"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-top:14px;"><div class="sttl">Alertas Operacionais</div><div id="db-alerts">Aguardando dados...</div></div>
     </div>
-    <div class="norm-prev" id="nprev"></div>
-    <div class="chips" id="dchips" style="margin-top:9px;"></div>
   </div>
-  <div class="g12">
-    <div id="dres-area">
-      <div class="empt card" style="height:280px;"><div class="emico">🔍</div><div class="emtxt">Adicione um DTC para ver o diagnóstico</div></div>
+
+  <div class="page" id="page-bat"><div class="pi"><div class="vgrid" id="bat-content"></div></div></div>
+  
+  <div class="page" id="page-diag">
+    <div class="pi">
+      <div class="dtc-zone">
+        <div class="sttl">Entrada de DTCs</div>
+        <div class="dtc-iw">
+          <input type="text" id="dinp" class="dtc-inp" placeholder="P0300, P0420..." onkeydown="if(event.key==='Enter')addDTCs()">
+          <button class="dtc-add" onclick="addDTCs()">+</button>
+        </div>
+        <div class="chips" id="dchips"></div>
+      </div>
+      <div class="g12">
+        <div id="dres-area"></div>
+        <div class="card">
+          <div class="sttl">Agente IA - Claude 3.5 Sonnet</div>
+          <div id="ai-out">Aguardando análise...</div>
+          <button class="aibtn" id="aibtn" onclick="runAI()" style="background:var(--blue-dim); border:1px solid var(--blue); color:var(--blue); width:100%; padding:10px; cursor:pointer; margin-top:10px;">⚡ Analisar com IA</button>
+        </div>
+      </div>
     </div>
-    <div class="card">
-      <div class="sttl">Agente IA — Diagnóstico Inteligente</div>
-      <div id="ai-out"><div class="empt" style="height:180px;"><div class="emico">🧠</div><div class="emtxt">Selecione DTC e clique em Analisar</div></div></div>
-      <div id="ai-ctrl" style="display:none;margin-top:8px;">
-        <button class="aibtn" id="aibtn" onclick="runAI()">⚡ Analisar com IA</button>
+  </div>
+
+  <div class="page" id="page-fleet"><div class="pi"><div class="rcgrid" id="rgrid"></div></div></div>
+
+  <div class="page" id="page-cfg">
+    <div class="pi">
+      <div class="g2">
+        <div class="card">
+          <div class="sttl">API Anthropic</div>
+          <input type="password" id="capi" class="cfinp" placeholder="sk-ant-..."/>
+          <button class="cfbtn a" onclick="savAPI()">💾 Salvar</button>
+        </div>
+        <div class="card">
+          <div class="sttl">Supabase</div>
+          <input type="text" id="csburl" class="cfinp" placeholder="URL..."/>
+          <input type="password" id="csbkey" class="cfinp" placeholder="Anon Key..."/>
+          <button class="cfbtn a" onclick="savSB()">💾 Salvar</button>
+        </div>
+        <div class="card">
+          <div class="sttl">Monitor ASB</div>
+          <input type="text" id="casb" class="cfinp" placeholder="Google Script URL..."/>
+          <button class="cfbtn a" onclick="savASB()">💾 Salvar</button>
+        </div>
+        <div class="card">
+          <div class="sttl">Metabase</div>
+          <input type="text" id="cmb" class="cfinp" placeholder="Google Script URL..."/>
+          <button class="cfbtn a" onclick="savMB()">💾 Salvar</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
-</div>
 
-<div class="page" id="page-fleet">
-<div class="pi">
-  <div class="kpir">
-    <div class="kpi r" onclick="setFF('URGENTE')"><div class="kpi-lbl">Elétrica Urgente</div><div class="kpi-val" id="kf1">—</div></div>
-    <div class="kpi a" onclick="setFF('INVESTIGAR')"><div class="kpi-lbl">Investigar</div><div class="kpi-val" id="kf2">—</div></div>
-    <div class="kpi b" onclick="setFF('MECANICA')"><div class="kpi-lbl">Mecânica</div><div class="kpi-val" id="kf3">—</div></div>
-    <div class="kpi g" onclick="setFF(null)"><div class="kpi-lbl">Total</div><div class="kpi-val" id="kf4">—</div></div>
-    <div class="kpi p"><div class="kpi-lbl">Tensão Média</div><div class="kpi-val" id="kf5">—</div></div>
-  </div>
-  <div class="g21">
-    <div class="card"><div class="sttl">Histórico Tensão</div>
-      <select id="chp" onchange="updFChart()" style="background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:9px;padding:3px 6px;border-radius:3px;margin-bottom:8px;"></select>
-      <div class="chwrap"><canvas id="fc1"></canvas></div>
-    </div>
-    <div class="card"><div class="sttl">Falhas por Hora</div>
-      <div class="hmap" id="hmap"></div>
-      <div class="hmlbl"><span>00h</span><span>06h</span><span>12h</span><span>18h</span><span>23h</span></div>
-      <div id="hmins" style="font-size:9px;color:var(--text2);margin-top:9px;"></div>
-    </div>
-  </div>
-  <div class="sttl">Roteamento de Veículos</div>
-  <div class="rcgrid" id="rgrid"><div class="empt"><div class="emico">🚗</div><div class="emtxt">Configure e sincronize o Metabase</div></div></div>
-</div>
-</div>
-
-<div class="page" id="page-cfg">
-<div class="pi">
-  <div class="g2">
-    <div class="card">
-      <div class="sttl">API Anthropic</div>
-      <label class="cflbl">Chave API (sk-ant-...)</label>
-      <input type="password" id="capi" class="cfinp" placeholder="sk-ant-api03-..."/>
-      <div style="display:flex;gap:7px;"><button class="cfbtn a" onclick="savAPI()">💾 Salvar</button><button class="cfbtn r" onclick="clrAPI()">✕</button></div>
-      <div class="cfst" id="apit"></div>
-    </div>
-    <div class="card">
-      <div class="sttl">Supabase</div>
-      <label class="cflbl">URL do Projeto</label>
-      <input type="text" id="csburl" class="cfinp" placeholder="https://xxx.supabase.co"/>
-      <label class="cflbl">Anon Key</label>
-      <input type="password" id="csbkey" class="cfinp" placeholder="eyJhbGci..."/>
-      <div style="display:flex;gap:7px;"><button class="cfbtn a" onclick="savSB()">💾 Salvar</button><button class="cfbtn g" onclick="tstSB()">⚡ Testar</button></div>
-      <div class="cfst" id="sbt"></div>
-    </div>
-    <div class="card">
-      <div class="sttl">Google Bridge — Monitor ASB</div>
-      <input type="text" id="casb" class="cfinp" placeholder="https://script.google.com/macros/s/.../exec"/>
-      <div style="display:flex;gap:7px;"><button class="cfbtn a" onclick="savASB()">💾 Salvar</button><button class="cfbtn g" onclick="loadASB()">⚡ Carregar</button></div>
-      <div class="cfst" id="asbt"></div>
-    </div>
-    <div class="card">
-      <div class="sttl">Google Bridge — Metabase</div>
-      <input type="text" id="cmb" class="cfinp" placeholder="https://script.google.com/macros/s/.../exec"/>
-      <div style="display:flex;gap:7px;"><button class="cfbtn a" onclick="savMB()">💾 Salvar</button><button class="cfbtn g" onclick="loadMB()">⚡ Carregar</button></div>
-      <div class="cfst" id="mbt"></div>
-    </div>
-  </div>
-</div>
-</div>
-
-</div>
 <div id="nbar"></div>
 
 <script>
+// DATABASE EMBEDDED
 const DB={
-P0100:{d:"Sensor MAF - Circuito",si:"MAF",se:"Alta"},
-P0300:{d:"Falha de ignição aleatória/múltipla",si:"Ignição",se:"Alta",ca:"Velas; bobinas; injetores; compressão",t:"1 - Verificar com scanner: RPM, trims\n2 - Inspecionar velas\n3 - Medir bobinas\n4 - Pressão combustível"},
-P0420:{d:"Eficiência catalisador abaixo do limite B1",si:"Catalisador",se:"Alta"},
-P0562:{d:"Tensão do sistema baixa",si:"Elétrico",se:"Alta"},
-U0100:{d:"Perda comunicação ECM/PCM",si:"CAN",se:"Crítica"},
-B1035:{d:"Sistema direção elétrica assistida - Falha",si:"Direção",se:"Alta"},
-C1215:{d:"Falha interruptor pedal do freio",si:"Freios",se:"Alta"}
+P0100:{d:"Sensor MAF - Circuito",si:"MAF",se:"Alta", t:"Verificar conector e chicote do MAF."},
+P0300:{d:"Falha de ignição múltipla",si:"Ignição",se:"Alta", t:"Inspecionar velas e bobinas. Verificar combustível."},
+P0420:{d:"Eficiência catalisador abaixo do limite",si:"Catalisador",se:"Média", t:"Verificar sonda pós-catalisador."},
+P0562:{d:"Tensão do sistema baixa",si:"Elétrico",se:"Alta", t:"Testar alternador e bateria."},
+U0100:{d:"Perda comunicação ECM/PCM",si:"CAN",se:"Crítica", t:"Verificar rede CAN e fusíveis do módulo."},
+B1035:{d:"Falha Direção Elétrica",si:"Direção",se:"Alta", t:"Verificar alimentação da UCE da direção."}
 };
 
-function normDTCs(raw) {
-  if (!raw) return [];
-  const parts = raw.split(/[,;\n\r|\/\\]+/);
-  const results = [];
-  parts.forEach(part => {
-    const clean = part.trim().toUpperCase();
-    if (!clean) return;
-    const stripped = clean.replace(/[\s\-_\.]/g, '');
-    const found = stripped.match(/[PBCU]\d{4}/g);
-    if (found) { found.forEach(f => results.push(f)); return; }
-    if (/^\d{4}$/.test(stripped)) { results.push('P' + stripped); return; }
-  });
-  return [...new Set(results)];
-}
-
-function prevNorm(val) {
-  const el = document.getElementById('nprev');
-  if (!val.trim()) { el.innerHTML = ''; return; }
-  const codes = normDTCs(val);
-  el.innerHTML = codes.length ? 'Detectados: ' + codes.map(c => `<span class="nchip">→ ${c}</span>`).join('') : '';
-}
-
 const S = {
-  dtcSess: [], activeDTC: null, asb: [], mb: [], mbProc: [], mbAvg: '—', batHist: {}, fleetFilter: null,
-  batFiltC: false, batFiltV: false, charts: {},
+  asb: [], mbProc: [], charts: {},
   api: () => localStorage.getItem('k_api') || '',
   sbUrl: () => localStorage.getItem('k_sburl') || '',
   sbKey: () => localStorage.getItem('k_sbkey') || '',
@@ -375,140 +254,51 @@ function pg(id) {
 
 function notify(msg, t = 'info') {
   const el = document.getElementById('nbar');
-  const tc = {info:'var(--blue)',ok:'var(--green)',err:'var(--red)',warn:'var(--amber)'};
-  el.style.background = 'rgba(0,0,0,0.8)'; el.style.color = tc[t];
+  el.style.background = 'rgba(0,0,0,0.9)'; el.style.color = t==='err'?'var(--red)':'var(--green)';
   el.innerHTML = msg; el.classList.add('show');
-  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 4000);
+  setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-function lkup(code) {
-  try { const cu = JSON.parse(localStorage.getItem('k_cdt') || '{}'); if (cu[code]) return cu[code]; } catch(e) {}
-  return DB[code] || null;
-}
-
-function addDTCs() {
-  const inp = document.getElementById('dinp');
-  const codes = normDTCs(inp.value.trim());
-  if (!codes.length) return;
-  codes.forEach(c => { if (!S.dtcSess.find(x => x.code === c)) S.dtcSess.push({code:c, data:lkup(c)}); });
-  inp.value = ''; document.getElementById('nprev').innerHTML = '';
-  renderChips();
-  if (codes.length === 1) selDTC(codes[0]);
-}
-
-function renderChips() {
-  const el = document.getElementById('dchips');
-  el.innerHTML = S.dtcSess.map(({code,data}) =>
-    `<div class="chip ${S.activeDTC===code?'sel':''}" onclick="selDTC('${code}')">
-      <div class="chip-dot" style="background:${data? (data.se==='Crítica'?'var(--red)':'var(--amber)') : 'var(--text3)'}"></div>
-      <span class="chip-c">${code}</span>
-      <span class="chip-x" onclick="event.stopPropagation();rmDTC('${code}')">✕</span>
-    </div>`).join('');
-}
-
-function rmDTC(c) {
-  S.dtcSess = S.dtcSess.filter(x => x.code !== c);
-  if (S.activeDTC === c) S.activeDTC = null;
-  renderChips();
-}
-
-function selDTC(code) {
-  S.activeDTC = code; renderChips(); renderDiag(code);
-  document.getElementById('ai-ctrl').style.display = 'block';
-}
-
-function renderDiag(code) {
-  const d = lkup(code);
-  const sev = d?.se || '—';
-  let h = `<div class="dres">
-    <div class="dbig"><div class="dcode">${code}</div><div class="dsev">${sev}</div></div>
-    <div class="dblk"><div class="dlbl">Descrição</div><div class="dcont">${d?.d||'Código não mapeado.'}</div></div>`;
-  if (d?.t) h += `<div class="dblk"><div class="dlbl">Procedimento</div><div class="dcont">${d.t.replace(/\n/g,'<br>')}</div></div>`;
-  h += '</div>';
-  document.getElementById('dres-area').innerHTML = h;
-}
-
+// SYNC ENGINE
 async function syncAll() {
-  notify('◌ Sincronizando...','info');
-  if(S.asbUrl()) await loadASB();
-  if(S.mbUrl()) await loadMB();
-  notify('✓ Concluído','ok');
-}
-
-async function loadASB() {
-  const url = S.asbUrl(); if (!url) return;
+  notify('◌ Sincronizando dados...', 'info');
+  setDot('sd1', 'live'); setDot('sd2', 'live');
   try {
-    const r = await fetch(url); const data = await r.json();
-    S.asb = Array.isArray(data) ? data : [];
-    renderASB(S.asb); updKPIs();
-  } catch(e) { notify('Erro ASB','err'); }
-}
-
-function renderASB(veh) {
-  const grps = {};
-  veh.forEach(v => {
-    const b = v.local ? v.local.split(/[-\/]/)[0].trim().toUpperCase() : 'SEM BASE';
-    if (!grps[b]) grps[b] = []; grps[b].push(v);
-  });
-  document.getElementById('bat-content').innerHTML = Object.entries(grps).map(([base, vs]) => `
-    <div class="bsec">
-      <div class="bhead"><span class="bname">📍 ${base}</span><span class="bcnt">${vs.length}</span></div>
-      <div class="vgrid">${vs.map(v=>renderVC(v)).join('')}</div>
-    </div>`).join('');
-}
-
-function renderVC(v) {
-  const bat = parseFloat(v.bateria) || 0;
-  const c = bat < 12 ? 'var(--red)' : bat < 12.4 ? 'var(--amber)' : 'var(--green)';
-  return `<div class="vc ${v.vendido?'sold':bat<12?'crit':'ok'}" onclick="document.getElementById('placa-busca').value='${v.placa}'; pg('diag');">
-    <div class="vc-pl">${v.placa}</div>
-    <div class="vc-mod">${v.modelo||''}</div>
-    <div class="vc-bat"><span class="vc-bv" style="color:${c}">${bat.toFixed(2)}V</span></div>
-  </div>`;
-}
-
-async function loadMB() {
-  const url = S.mbUrl(); if (!url) return;
-  try {
-    const r = await fetch(url); const raw = await r.json();
-    let rows = raw.data?.rows ? raw.data.rows.map(r => { 
-      const o={}; raw.data.cols.forEach((c,i)=>o[c.display_name||c.name]=r[i]); return o; 
-    }) : raw;
-    S.mb = rows; procMB(rows); renderFleet(); updKPIs();
-  } catch(e) { notify('Erro Metabase','err'); }
-}
-
-function procMB(rows) {
-  S.batHist = {}; const dm = {}; let sum=0, cnt=0;
-  rows.forEach(r => {
-    const pl = r['Placa']; const v = parseFloat(r['Tensão Bateria']||0);
-    if (pl && v>0) {
-      if (!S.batHist[pl]) S.batHist[pl]=[]; S.batHist[pl].push({t:new Date(r['Data/Hora Leitura (Para o Gráfico)']),y:v});
-      sum+=v; cnt++;
+    if(S.asbUrl()) {
+        const r = await fetch(S.asbUrl());
+        S.asb = await r.json();
     }
-    const ddt = r['Diagnóstico finalizado em'];
-    if (pl && ddt) {
-      const k = pl+'_'+ddt;
-      if (!dm[k]) dm[k]={placa:pl,dt:ddt,codes:[],v};
-      if (r['Códigos encontrados']) normDTCs(r['Códigos encontrados']).forEach(nc=>{if(!dm[k].codes.includes(nc))dm[k].codes.push(nc);});
+    if(S.mbUrl()) {
+        const r = await fetch(S.mbUrl());
+        const raw = await r.json();
+        S.mbProc = raw.data?.rows ? raw.data.rows.map(r => { 
+            const o={}; raw.data.cols.forEach((c,i)=>o[c.display_name||c.name]=r[i]); 
+            o.v = parseFloat(o['Tensão Bateria'] || 0);
+            o.route = o.v < 12 ? 'URGENTE' : o.v < 12.4 ? 'INVESTIGAR' : 'MECANICA';
+            return o; 
+        }) : [];
     }
-  });
-  S.mbAvg = cnt>0 ? (sum/cnt).toFixed(2) : '—';
-  S.mbProc = Object.values(dm).map(d => ({...d,route: d.v<12?'URGENTE':d.v<12.4?'INVESTIGAR':'MECANICA'}));
+    renderAll();
+    notify('✓ Sincronização concluída!', 'ok');
+  } catch(e) { notify('Erro na sincronização', 'err'); }
 }
 
-function renderFleet() {
-  document.getElementById('rgrid').innerHTML = S.mbProc.slice(0,12).map(d=>`
-    <div class="rc ${d.route==='URGENTE'?'eu':d.route==='INVESTIGAR'?'ei':'mec'}">
-      <div class="rch"><span class="rcpl">${d.placa}</span><span class="rcbdg">${d.route}</span></div>
-      <div class="rcb"><div class="rcbv">${d.v.toFixed(2)}V</div></div>
-    </div>`).join('');
+function renderAll() {
+    updKPIs();
+    renderBat();
+    renderFleet();
 }
 
 function updKPIs() {
-  document.getElementById('kd1').textContent = S.asb.filter(v=>!v.vendido&&parseFloat(v.bateria)<12).length;
+  const bc = S.asb.filter(v=>!v.vendido && parseFloat(v.bateria) < 12).length;
+  document.getElementById('kd1').textContent = bc;
   document.getElementById('kd2').textContent = S.mbProc.filter(x=>x.route==='URGENTE').length;
-  document.getElementById('kd5').textContent = S.mbAvg + (S.mbAvg!=='—'?'V':'');
+  document.getElementById('kd3').textContent = S.mbProc.length;
+  document.getElementById('kd4').textContent = S.asb.filter(v=>!v.vendido).length;
+  
+  const bvs = S.asb.filter(v=>parseFloat(v.bateria)>0).map(v=>parseFloat(v.bateria));
+  const avg = bvs.length ? (bvs.reduce((a,b)=>a+b,0)/bvs.length).toFixed(2) : '—';
+  document.getElementById('kd5').textContent = avg + 'V';
   renderDashChart();
 }
 
@@ -518,17 +308,76 @@ function renderDashChart() {
   const u=S.mbProc.filter(x=>x.route==='URGENTE').length;
   const iv=S.mbProc.filter(x=>x.route==='INVESTIGAR').length;
   const m=S.mbProc.filter(x=>x.route==='MECANICA').length;
-  S.charts.d=new Chart(ctx,{type:'doughnut',data:{labels:['Urgente','Investigar','Mecânica'],datasets:[{data:[u||1,iv||1,m||1],backgroundColor:['#ff1744','#f0a000','#29b6f6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%'}});
+  S.charts.d=new Chart(ctx,{type:'doughnut',data:{labels:['Urgente','Investigar','Mecânica'],datasets:[{data:[u||1,iv||1,m||1],backgroundColor:['#ff1744','#f0a000','#29b6f6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'75%',plugins:{legend:{position:'bottom',labels:{color:'#7f8ea8',font:{size:9}}}}}});
 }
 
-function savAPI() { localStorage.setItem('k_api',document.getElementById('capi').value); notify('Salvo','ok'); }
-function savSB() { localStorage.setItem('k_sburl',document.getElementById('csburl').value); localStorage.setItem('k_sbkey',document.getElementById('csbkey').value); notify('Salvo','ok'); }
-function savASB() { localStorage.setItem('k_asburl',document.getElementById('casb').value); notify('Salvo','ok'); }
-function savMB() { localStorage.setItem('k_mburl',document.getElementById('cmb').value); notify('Salvo','ok'); }
+function renderBat() {
+  const crit = S.asb.filter(v=>!v.vendido && parseFloat(v.bateria) < 12).sort((a,b)=>parseFloat(a.bateria)-parseFloat(b.bateria));
+  document.getElementById('db-list').innerHTML = crit.slice(0,8).map(v => `
+    <div style="display:flex; justify-content:space-between; padding:8px; background:var(--s3); margin-bottom:5px; border-radius:4px; border-left:3px solid var(--red);">
+        <span style="font-weight:bold;">${v.placa}</span>
+        <span style="color:var(--red); font-weight:bold;">${parseFloat(v.bateria).toFixed(2)}V</span>
+    </div>`).join('');
+  
+  document.getElementById('bat-content').innerHTML = S.asb.map(v => `
+    <div class="vc ${parseFloat(v.bateria)<12?'crit':'ok'}" onclick="selPlaca('${v.placa}')">
+        <div class="vc-pl">${v.placa}</div>
+        <div style="font-size:9px; color:var(--text2);">${v.modelo || ''}</div>
+        <div class="vc-bat"><span class="vc-bv">${parseFloat(v.bateria).toFixed(2)}V</span></div>
+    </div>`).join('');
+}
+
+function renderFleet() {
+    document.getElementById('rgrid').innerHTML = S.mbProc.slice(0,12).map(d => `
+        <div class="rc ${d.route==='URGENTE'?'eu':'mec'}">
+            <div style="padding:10px; display:flex; justify-content:space-between;">
+                <span class="rcpl">${d.placa}</span>
+                <span class="rcbdg">${d.route}</span>
+            </div>
+            <div style="padding:10px; font-size:18px; font-weight:bold;">${d.v.toFixed(2)}V</div>
+        </div>`).join('');
+}
+
+function selPlaca(p) { document.getElementById('dinp').value = p; pg('diag'); }
+
+// AI ENGINE
+async function runAI() {
+  const key = S.api();
+  if(!key) { alert('Configure a API no Config'); return; }
+  const out = document.getElementById('ai-out');
+  const btn = document.getElementById('aibtn');
+  btn.textContent = 'PENSANDO...';
+  
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-3-5-sonnet-latest',max_tokens:1000,messages:[{role:'user',content:'Analise as falhas e tensão de bateria para evitar recusa na entrega kovi.'}]})
+    });
+    const data = await r.json();
+    out.innerHTML = data.content[0].text.replace(/\n/g, '<br>');
+  } catch(e) { out.innerHTML = 'Erro na IA: ' + e.message; }
+  btn.textContent = '⚡ Analisar com IA';
+}
+
+// CONFIG SAVERS
+function savAPI() { localStorage.setItem('k_api', document.getElementById('capi').value); notify('API Salva', 'ok'); }
+function savSB() { localStorage.setItem('k_sburl', document.getElementById('csburl').value); localStorage.setItem('k_sbkey', document.getElementById('csbkey').value); notify('Supabase Salvo', 'ok'); }
+function savASB() { localStorage.setItem('k_asburl', document.getElementById('casb').value); notify('ASB Salvo', 'ok'); }
+function savMB() { localStorage.setItem('k_mburl', document.getElementById('cmb').value); notify('Metabase Salvo', 'ok'); }
+
+function setDot(id, s) { document.getElementById(id).className = 'sdot ' + s; }
 
 window.addEventListener('load', () => {
-  if(S.asbUrl()) loadASB();
-  if(S.mbUrl()) loadMB();
+  // PERSISTENCIA: Preenche os campos se existirem no cofre
+  if(S.api()) document.getElementById('capi').value = '●'.repeat(16);
+  if(S.sbUrl()) document.getElementById('csburl').value = S.sbUrl();
+  if(S.sbKey()) document.getElementById('csbkey').value = '●'.repeat(16);
+  if(S.asbUrl()) document.getElementById('casb').value = S.asbUrl();
+  if(S.mbUrl()) document.getElementById('cmb').value = S.mbUrl();
+
+  renderDashChart();
+  if(S.asbUrl() && S.mbUrl()) syncAll();
 });
 </script>
 </body>
