@@ -293,7 +293,8 @@ table.dt tr:hover td{background:var(--s3);}
   </div>
   <div class="g21">
     <div class="card"><div class="sttl">Histórico Tensão</div>
-      <select id="chp" onchange="updFChart()" style="background:var(--bg); border:1px solid var(--border2); color:var(--amber); font-size:14px; font-family:var(--mono); font-weight:700; padding:8px 12px; border-radius:5px; margin-bottom:15px; cursor:pointer; outline:none;"></select>
+      <input type="text" id="chp" list="placas-list" onchange="updFChart()" placeholder="Digite a placa..." style="background:var(--bg); border:1px solid var(--border2); color:var(--amber); font-size:14px; font-family:var(--mono); font-weight:700; padding:8px 12px; border-radius:5px; margin-bottom:15px; cursor:text; outline:none; text-transform:uppercase; width: 180px;">
+<datalist id="placas-list"></datalist>
       <div class="chwrap"><canvas id="fc1"></canvas></div>
     </div>
     <div class="card"><div class="sttl">Falhas por Hora</div>
@@ -754,9 +755,11 @@ function procMB(rows) {
     const route = d.v>0&&d.v<12?'URGENTE':d.v<12.4?'INVESTIGAR':'MECANICA';
     return {...d,route};
   }).sort((a,b)=>new Date(b.dt)-new Date(a.dt));
-  const sel = document.getElementById('chp');
+ const dl = document.getElementById('placas-list');
+  const inp = document.getElementById('chp');
   const pls = Object.keys(S.batHist);
-  sel.innerHTML = pls.map(p=>`<option value="${p}">${p}</option>`).join('');
+  dl.innerHTML = pls.map(p=>`<option value="${p}">`).join('');
+  if(pls.length > 0 && !inp.value) inp.value = pls[0];
   if (pls.length) updFChart();
 }
 
@@ -807,21 +810,52 @@ function renderHmap() {
 }
 
 function updFChart() {
-  const pl=document.getElementById('chp').value;
-  const hist=(S.batHist[pl]||[]).sort((a,b)=>a.t-b.t);
+  const pl = document.getElementById('chp').value.toUpperCase();
+  const hist = (S.batHist[pl]||[]).sort((a,b)=>a.t-b.t);
   
-  // SOLUÇÃO CANVAS AQUI:
   const existingChart = Chart.getChart("fc1"); 
   if (existingChart) existingChart.destroy();
-  const ctx=document.getElementById('fc1').getContext('2d');
+  const ctx = document.getElementById('fc1').getContext('2d');
 
-  S.charts.f=new Chart(ctx,{type:'line',data:{datasets:[{label:pl,data:hist.map(p=>({x:p.t,y:p.y})),borderColor:'#29b6f6',borderWidth:2,pointRadius:0,fill:true,backgroundColor:'rgba(41,182,246,.06)',tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{type:'time',time:{unit:'day'},grid:{display:false},ticks:{color:'#7f8ea8',font:{family:'JetBrains Mono',size:8}}},y:{min:10,max:15,grid:{color:'#1e2435'},ticks:{color:'#7f8ea8',font:{family:'JetBrains Mono',size:8}}}}}});
-}
-
-function goDTC(code) {
-  pg('diag');
-  if (!S.dtcSess.find(x=>x.code===code)) { S.dtcSess.push({code,data:lkup(code)}); renderChips(); }
-  selDTC(code);
+  S.charts.f = new Chart(ctx, {
+    type:'line',
+    data: {
+      datasets: [{
+        label: pl,
+        data: hist.map(p=>({x:p.t, y:p.y})),
+        borderColor: '#29b6f6',
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 6,
+        fill: true,
+        backgroundColor: 'rgba(41,182,246,.06)',
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { 
+            type:'time', time:{unit:'day'}, grid:{display:false}, 
+            ticks:{color:'#7f8ea8', font:{family:'JetBrains Mono', size:8}}
+        },
+        y: { 
+            min: 0,
+            max: 16, 
+            grid: {color:'#1e2435'}, 
+            ticks:{color:'#7f8ea8', font:{family:'JetBrains Mono', size:8}}
+        }
+      }
+    }
+  });
 }
 
 // ════════ DASHBOARD ════════
