@@ -303,7 +303,10 @@ table.dt tr:hover td{background:var(--s3);}
       <div id="hmins" style="font-size:9px;color:var(--text2);margin-top:9px;"></div>
     </div>
   </div>
-  <div class="sttl">Roteamento de Veículos</div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+    <div class="sttl" style="margin-bottom:0;">Roteamento de Veículos</div>
+    <input type="text" id="fsrch" placeholder="BUSCAR PLACA..." oninput="renderFleet()" style="background:var(--bg); border:1px solid var(--border2); color:var(--amber); padding:6px 12px; font-size:11px; font-family:var(--mono); border-radius:4px; outline:none; text-transform:uppercase; width:200px;">
+  </div>
   <div class="rcgrid" id="rgrid"><div class="empt"><div class="emico">🚗</div><div class="emtxt">Configure e sincronize o Metabase</div></div></div>
   <div class="card" style="margin-top:14px;">
     <div class="sttl">Análise DTC × Bateria</div>
@@ -764,7 +767,9 @@ function procMB(rows) {
 }
 
 function renderFleet() {
-  const data = S.fleetFilter ? S.mbProc.filter(d=>d.route===S.fleetFilter) : S.mbProc;
+  const q = document.getElementById('fsrch') ? document.getElementById('fsrch').value.toUpperCase() : '';
+  let data = S.fleetFilter ? S.mbProc.filter(d=>d.route===S.fleetFilter) : S.mbProc;
+  
   const u=S.mbProc.filter(x=>x.route==='URGENTE').length;
   const iv=S.mbProc.filter(x=>x.route==='INVESTIGAR').length;
   const m=S.mbProc.filter(x=>x.route==='MECANICA').length;
@@ -773,24 +778,41 @@ function renderFleet() {
   document.getElementById('kf3').textContent=m;
   document.getElementById('kf4').textContent=S.mbProc.length;
   document.getElementById('kf5').textContent=S.mbAvg+(S.mbAvg!=='—'?'V':'');
+  
+  // MÁGICA 1: Contar quantas vezes o carro apareceu no Metabase
+  const pCount = {};
+  S.mbProc.forEach(x => pCount[x.placa] = (pCount[x.placa]||0)+1);
+
+  // MÁGICA 2: Filtrar pela barra de pesquisa
+  if (q) data = data.filter(d => d.placa.includes(q) || d.codes.some(c=>c.includes(q)));
+
   const grid=document.getElementById('rgrid');
-  if (!data.length) { grid.innerHTML='<div class="empt"><div class="emico">🚗</div><div class="emtxt">Sem dados do Metabase</div></div>'; return; }
+  if (!data.length) { grid.innerHTML='<div class="empt"><div class="emico">🚗</div><div class="emtxt">Nenhum veículo encontrado</div></div>'; document.getElementById('ftbl').innerHTML=''; return; }
+  
   grid.innerHTML=data.slice(0,24).map(d=>{
     const c=d.v<12?'var(--red)':d.v<12.4?'var(--amber)':'var(--green)';
     const pct=Math.min(100,Math.max(0,((d.v-10.5)/4)*100));
     const cls=d.route==='URGENTE'?'eu':d.route==='INVESTIGAR'?'ei':'mec';
     const bcls='bdg-'+cls;
     const lbl=d.route==='URGENTE'?'⚡ ELÉTRICA URGENTE':d.route==='INVESTIGAR'?'🔍 INVESTIGAR':'🔧 MECÂNICA';
-    return `<div class="rc ${cls}"><div class="rch"><span class="rcpl">${d.placa}</span><span class="rcbdg ${bcls}">${lbl}</span></div>
+    
+    // MÁGICA 3: O Selo de Reincidência
+    const rep = pCount[d.placa] > 1 ? `<span style="font-size:9px; background:var(--purple); color:#fff; padding:2px 6px; border-radius:3px; margin-left:8px; vertical-align:middle; font-weight:bold;">🔄 ${pCount[d.placa]}x</span>` : '';
+    
+    return `<div class="rc ${cls}"><div class="rch"><span class="rcpl">${d.placa}${rep}</span><span class="rcbdg ${bcls}">${lbl}</span></div>
     <div class="rcb"><div class="rcbv" style="color:${c}">${d.v.toFixed(2)}V <span style="font-size:9px;font-weight:400;color:var(--text2);">bateria</span></div>
     <div class="bbar" style="margin-bottom:8px;"><div class="bbf" style="width:${pct}%;background:${c};"></div></div>
     <div class="rcc">${d.codes.map(c=>`<span class="rccode" onclick="goDTC('${c}')">${c}</span>`).join('')}</div>
-    <div class="rcins">${d.route==='URGENTE'?'⚠ Risco bus-off — elétrico prioritário':d.route==='INVESTIGAR'?'🔍 Verificar alternador e bateria':'🔧 Fluxo mecânico padrão'}</div>
+    <div class="rcins" style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+       <span>${d.route==='URGENTE'?'⚠ Risco bus-off':d.route==='INVESTIGAR'?'🔍 Verificar alternador':'🔧 Fluxo mecânico'}</span>
+       <span style="color:var(--text3); font-family:var(--mono); font-weight:bold;">${new Date(d.dt).toLocaleDateString('pt-BR')}</span>
+    </div>
     </div></div>`;
   }).join('');
+  
   const tbody=document.getElementById('ftbl');
   tbody.innerHTML=data.slice(0,30).map(d=>`<tr>
-    <td class="tmono">${d.placa}</td>
+    <td class="tmono">${d.placa} ${pCount[d.placa] > 1 ? '<span style="color:var(--purple); font-size:9px; font-weight:bold;">(🔄 '+pCount[d.placa]+'x)</span>':''}</td>
     <td>${new Date(d.dt).toLocaleString('pt-BR')}</td>
     <td>${d.codes.map(c=>`<span class="tag ti" style="cursor:pointer;" onclick="goDTC('${c}')">${c}</span>`).join(' ')}</td>
     <td><span class="tag ${d.v<12?'tc':d.v<12.4?'tw':'tok'}">${d.v.toFixed(2)}V</span></td>
