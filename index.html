@@ -15,7 +15,7 @@
   --green:#00e676;--green-dim:rgba(0,230,118,.1);
   --red:#ff1744;--red-dim:rgba(255,23,68,.1);
   --blue:#29b6f6;--blue-dim:rgba(41,182,246,.1);
-  --orange:#ff6d00;--purple:#b388ff;
+  --orange:#ff6d00;--purple:#b388ff;--purple-dim:rgba(179,136,255,.12);
   --text:#e2e8f0;--text2:#7f8ea8;--text3:#374560;
   --mono:'JetBrains Mono',monospace;--sans:'Space Grotesk',sans-serif;
   --r:6px;--rl:10px;
@@ -131,23 +131,93 @@ button,input,select,textarea{font-family:var(--mono);}
 .aibtn:hover{background:rgba(41,182,246,.2);}
 .aibtn:disabled{opacity:.5;cursor:wait;}
 .rcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;margin-bottom:18px;}
-.rc{background:var(--s2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:all .15s;}
-.rc:hover{border-color:var(--border3);}
+
+/* ── GROUPED ROUTE CARD ── */
+.rc{background:var(--s2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;transition:all .2s;cursor:pointer;}
+.rc:hover{border-color:var(--border3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
 .rc.eu{border-left:4px solid var(--red);}
 .rc.ei{border-left:4px solid var(--amber);}
 .rc.mec{border-left:4px solid var(--blue);}
-.rch{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+/* reincidente highlight */
+.rc.recid{box-shadow:0 0 0 1px rgba(179,136,255,.35);}
+.rc.recid:hover{box-shadow:0 0 0 1px rgba(179,136,255,.6),0 8px 24px rgba(0,0,0,.3);}
+.rch{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:6px;}
 .rcpl{font-family:var(--mono);font-size:15px;font-weight:700;}
+.rch-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .rcbdg{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;font-weight:700;}
 .bdg-eu{background:var(--red-dim);color:var(--red);}
 .bdg-ei{background:var(--amber-dim);color:var(--amber);}
 .bdg-mec{background:var(--blue-dim);color:var(--blue);}
+/* reincidence badge */
+.rec-badge{display:inline-flex;align-items:center;gap:3px;background:var(--purple-dim);border:1px solid rgba(179,136,255,.4);color:var(--purple);font-size:8px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.5px;}
 .rcb{padding:11px;}
 .rcbv{font-family:var(--mono);font-size:17px;font-weight:700;margin-bottom:7px;}
 .rcc{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px;}
-.rccode{font-family:var(--mono);font-size:8px;padding:2px 6px;border:1px solid var(--border2);border-radius:3px;color:var(--text2);cursor:pointer;}
-.rccode:hover{border-color:var(--amber);color:var(--amber);}
-.rcins{font-size:9px;color:var(--text2);padding:5px 7px;background:var(--bg);border-radius:3px;border-left:2px solid var(--border3);}
+.rccode{font-family:var(--mono);font-size:8px;padding:2px 6px;border:1px solid var(--border2);border-radius:3px;color:var(--text2);}
+.rccode.dup{border-color:rgba(179,136,255,.4);color:var(--purple);}
+.rcins{font-size:9px;color:var(--text2);padding:5px 7px;background:var(--bg);border-radius:3px;border-left:2px solid var(--border3);display:flex;justify-content:space-between;align-items:center;}
+/* mini timeline inside card */
+.rc-timeline{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.rc-tl-lbl{font-size:7px;text-transform:uppercase;letter-spacing:2px;color:var(--text3);margin-bottom:5px;}
+.rc-tl-entries{display:flex;flex-direction:column;gap:3px;}
+.rc-tl-entry{display:flex;align-items:center;gap:7px;padding:4px 6px;background:var(--bg);border-radius:3px;border-left:2px solid var(--border3);}
+.rc-tl-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.rc-tl-date{font-family:var(--mono);font-size:8px;color:var(--text2);width:78px;flex-shrink:0;}
+.rc-tl-codes{font-family:var(--mono);font-size:8px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rc-tl-v{font-family:var(--mono);font-size:8px;font-weight:700;flex-shrink:0;}
+.rc-expand-hint{font-size:8px;color:var(--purple);text-align:center;margin-top:8px;padding:5px;border:1px dashed rgba(179,136,255,.3);border-radius:4px;letter-spacing:.5px;}
+
+/* ── HISTORY MODAL ── */
+#hist-modal{display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.85);align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+#hist-modal.open{display:flex;}
+.hm-box{background:var(--s1);border:1px solid var(--border3);border-radius:14px;width:780px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.hm-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.hm-plate{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);}
+.hm-badges{display:flex;align-items:center;gap:6px;flex:1;}
+.hm-close{width:30px;height:30px;border-radius:50%;background:var(--s3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px;flex-shrink:0;transition:all .15s;}
+.hm-close:hover{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.hm-body{flex:1;overflow-y:auto;padding:18px 20px;}
+
+/* History entries */
+.hm-entry{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;position:relative;}
+.hm-entry.eu{border-left:3px solid var(--red);}
+.hm-entry.ei{border-left:3px solid var(--amber);}
+.hm-entry.mec{border-left:3px solid var(--blue);}
+.hm-entry-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.hm-entry-num{width:22px;height:22px;border-radius:50%;background:var(--s3);border:1px solid var(--border3);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--amber);flex-shrink:0;}
+.hm-entry-date{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:600;}
+.hm-entry-route{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;font-weight:700;}
+.hm-entry-v{font-family:var(--mono);font-size:18px;font-weight:700;margin-left:auto;}
+.hm-entry-codes{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;}
+.hm-code-tag{font-family:var(--mono);font-size:9px;padding:3px 8px;border:1px solid var(--border2);border-radius:4px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.hm-code-tag:hover{border-color:var(--amber);color:var(--amber);}
+.hm-code-tag.dup{border-color:rgba(179,136,255,.4);color:var(--purple);}
+.hm-bat-bar{height:3px;background:var(--s3);border-radius:2px;overflow:hidden;margin-bottom:10px;}
+.hm-bat-fill{height:100%;border-radius:2px;}
+
+/* Pattern analysis block */
+.hm-pattern{background:var(--bg);border:1px solid rgba(179,136,255,.3);border-radius:8px;padding:14px;margin-bottom:16px;}
+.hm-pattern-title{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--purple);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.hm-pattern-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.hm-pstat{background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:8px;text-align:center;}
+.hm-pstat-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--purple);}
+.hm-pstat-lbl{font-size:7px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-top:2px;}
+.hm-code-freq{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.hm-cf-item{display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--s2);border:1px solid var(--border);border-radius:4px;}
+.hm-cf-code{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--amber);}
+.hm-cf-cnt{font-size:8px;color:var(--text2);}
+.hm-cf-bar{width:40px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.hm-cf-fill{height:100%;background:var(--amber);border-radius:2px;}
+
+/* AI area inside modal */
+.hm-ai-area{background:var(--s2);border:1px solid rgba(41,182,246,.25);border-radius:8px;padding:14px;margin-top:6px;}
+.hm-ai-title{font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.hm-ai-output{font-size:10px;color:#cbd5e1;line-height:1.9;white-space:pre-wrap;}
+.hm-ai-btn{background:var(--blue-dim);border:1px solid var(--blue);color:var(--blue);padding:6px 14px;border-radius:4px;cursor:pointer;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;transition:all .15s;}
+.hm-ai-btn:hover{background:rgba(41,182,246,.2);}
+.hm-ai-btn:disabled{opacity:.5;cursor:wait;}
+
+/* ── rest of existing styles ── */
 .twrap{overflow-x:auto;}
 table.dt{width:100%;border-collapse:collapse;font-size:11px;}
 table.dt th{font-size:8px;color:var(--text2);padding:7px 9px;text-align:left;border-bottom:1px solid var(--border2);text-transform:uppercase;letter-spacing:1.5px;}
@@ -188,6 +258,22 @@ table.dt tr:hover td{background:var(--s3);}
 </style>
 </head>
 <body>
+
+<!-- HISTORY MODAL -->
+<div id="hist-modal">
+  <div class="hm-box">
+    <div class="hm-head">
+      <div>
+        <div class="hm-plate" id="hm-plate">—</div>
+        <div style="font-size:9px;color:var(--text2);margin-top:2px;" id="hm-sub">—</div>
+      </div>
+      <div class="hm-badges" id="hm-badges"></div>
+      <button class="hm-close" onclick="closeHistModal()">✕</button>
+    </div>
+    <div class="hm-body" id="hm-body"></div>
+  </div>
+</div>
+
 <div id="topbar">
   <div class="brand">
     <div class="brand-icon">⚡</div>
@@ -288,13 +374,13 @@ table.dt tr:hover td{background:var(--s3);}
     <div class="kpi r" onclick="setFF('URGENTE')"><div class="kpi-lbl">Elétrica Urgente</div><div class="kpi-val" id="kf1">—</div><div class="kpi-sub">filtrar</div></div>
     <div class="kpi a" onclick="setFF('INVESTIGAR')"><div class="kpi-lbl">Investigar</div><div class="kpi-val" id="kf2">—</div><div class="kpi-sub">filtrar</div></div>
     <div class="kpi b" onclick="setFF('MECANICA')"><div class="kpi-lbl">Mecânica</div><div class="kpi-val" id="kf3">—</div><div class="kpi-sub">filtrar</div></div>
-    <div class="kpi g" onclick="setFF(null)"><div class="kpi-lbl">Total</div><div class="kpi-val" id="kf4">—</div><div class="kpi-sub">limpar filtro</div></div>
+    <div class="kpi g" onclick="setFF(null)"><div class="kpi-lbl">Total Placas</div><div class="kpi-val" id="kf4">—</div><div class="kpi-sub">limpar filtro</div></div>
     <div class="kpi p"><div class="kpi-lbl">Tensão Média</div><div class="kpi-val" id="kf5">—</div></div>
   </div>
   <div class="g21">
     <div class="card"><div class="sttl">Histórico Tensão</div>
       <input type="text" id="chp" list="placas-list" onchange="updFChart()" placeholder="Digite a placa..." style="background:var(--bg); border:1px solid var(--border2); color:var(--amber); font-size:14px; font-family:var(--mono); font-weight:700; padding:8px 12px; border-radius:5px; margin-bottom:15px; cursor:text; outline:none; text-transform:uppercase; width: 180px;">
-<datalist id="placas-list"></datalist>
+      <datalist id="placas-list"></datalist>
       <div class="chwrap"><canvas id="fc1"></canvas></div>
     </div>
     <div class="card"><div class="sttl">Falhas por Hora</div>
@@ -304,13 +390,16 @@ table.dt tr:hover td{background:var(--s3);}
     </div>
   </div>
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-    <div class="sttl" style="margin-bottom:0;">Roteamento de Veículos</div>
-    <input type="text" id="fsrch" placeholder="BUSCAR PLACA..." oninput="renderFleet()" style="background:var(--bg); border:1px solid var(--border2); color:var(--amber); padding:6px 12px; font-size:11px; font-family:var(--mono); border-radius:4px; outline:none; text-transform:uppercase; width:200px;">
+    <div class="sttl" style="margin-bottom:0;">Roteamento de Veículos <span style="font-size:9px;font-weight:400;color:var(--text2);letter-spacing:1px;margin-left:6px;" id="fleet-subtitle"></span></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:8px;color:var(--text2);">🔄 Reincidentes = agrupados — clique para histórico</span>
+      <input type="text" id="fsrch" placeholder="BUSCAR PLACA..." oninput="renderFleet()" style="background:var(--bg); border:1px solid var(--border2); color:var(--amber); padding:6px 12px; font-size:11px; font-family:var(--mono); border-radius:4px; outline:none; text-transform:uppercase; width:200px;">
+    </div>
   </div>
   <div class="rcgrid" id="rgrid"><div class="empt"><div class="emico">🚗</div><div class="emtxt">Configure e sincronize o Metabase</div></div></div>
   <div class="card" style="margin-top:14px;">
     <div class="sttl">Análise DTC × Bateria</div>
-    <div class="twrap"><table class="dt"><thead><tr><th>Placa</th><th>Data</th><th>DTC</th><th>Tensão</th><th>Roteamento</th></tr></thead><tbody id="ftbl"></tbody></table></div>
+    <div class="twrap"><table class="dt"><thead><tr><th>Placa</th><th>Diagnósticos</th><th>DTCs</th><th>Última Tensão</th><th>Roteamento</th></tr></thead><tbody id="ftbl"></tbody></table></div>
   </div>
 </div>
 </div>
@@ -601,7 +690,7 @@ function spl(raw) {
 }
 function esc(s) { return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''; }
 
-// ════════ AI ════════
+// ════════ AI (Diagnóstico) ════════
 async function runAI() {
   const key = S.api();
   const out = document.getElementById('ai-out');
@@ -628,7 +717,7 @@ async function runAI() {
   btn.textContent = '⚡ Analisar com IA'; btn.disabled = false;
 }
 
-// ════════ ASB (Monitor Frota) ════════
+// ════════ ASB (Monitor Frota) — INTACTO ════════
 async function loadASB() {
   const url = S.asbUrl();
   if (!url) { notify('Configure o URL Monitor ASB em ⚙ Config', 'warn'); pg('cfg'); return; }
@@ -705,7 +794,7 @@ function toggleBF(t) {
   filterB();
 }
 
-// ════════ METABASE ════════
+// ════════ METABASE — INTACTO ════════
 async function loadMB() {
   const url = S.mbUrl();
   if (!url) { notify('Configure o URL Metabase em ⚙ Config', 'warn'); pg('cfg'); return; }
@@ -758,7 +847,7 @@ function procMB(rows) {
     const route = d.v>0&&d.v<12?'URGENTE':d.v<12.4?'INVESTIGAR':'MECANICA';
     return {...d,route};
   }).sort((a,b)=>new Date(b.dt)-new Date(a.dt));
- const dl = document.getElementById('placas-list');
+  const dl = document.getElementById('placas-list');
   const inp = document.getElementById('chp');
   const pls = Object.keys(S.batHist);
   dl.innerHTML = pls.map(p=>`<option value="${p}">`).join('');
@@ -766,10 +855,57 @@ function procMB(rows) {
   if (pls.length) updFChart();
 }
 
+// ════════ GROUP BY PLATE — NEW CORE LOGIC ════════
+function groupByPlate(entries) {
+  // Group all mbProc entries by plate
+  const groups = {};
+  entries.forEach(d => {
+    if (!groups[d.placa]) {
+      groups[d.placa] = { placa: d.placa, entries: [] };
+    }
+    groups[d.placa].entries.push(d);
+  });
+  // For each group, compute summary
+  return Object.values(groups).map(g => {
+    // Sort by date desc (most recent first)
+    g.entries.sort((a,b) => new Date(b.dt) - new Date(a.dt));
+    const latest = g.entries[0];
+    // Worst route priority: URGENTE > INVESTIGAR > MECANICA
+    const priority = {URGENTE:3, INVESTIGAR:2, MECANICA:1};
+    const worstRoute = g.entries.reduce((best, e) =>
+      (priority[e.route]||0) > (priority[best]||0) ? e.route : best, g.entries[0].route);
+    // All unique codes across all entries
+    const allCodes = [...new Set(g.entries.flatMap(e => e.codes))];
+    // Codes that appear in more than one entry (repeated codes)
+    const codeCounts = {};
+    g.entries.forEach(e => e.codes.forEach(c => { codeCounts[c] = (codeCounts[c]||0)+1; }));
+    const repeatedCodes = Object.entries(codeCounts).filter(([,n])=>n>1).map(([c])=>c);
+    return {
+      placa: g.placa,
+      entries: g.entries,
+      count: g.entries.length,
+      latest,
+      worstRoute,
+      allCodes,
+      repeatedCodes,
+      codeCounts,
+      lastV: latest.v,
+      lastDt: latest.dt,
+    };
+  }).sort((a,b) => {
+    // Sort: worst route first, then most recent
+    const pr = {URGENTE:3, INVESTIGAR:2, MECANICA:1};
+    const rd = (pr[b.worstRoute]||0) - (pr[a.worstRoute]||0);
+    if (rd !== 0) return rd;
+    return new Date(b.lastDt) - new Date(a.lastDt);
+  });
+}
+
+// ════════ RENDER FLEET (GROUPED) ════════
 function renderFleet() {
-  const q = document.getElementById('fsrch') ? document.getElementById('fsrch').value.toUpperCase() : '';
-  let data = S.fleetFilter ? S.mbProc.filter(d=>d.route===S.fleetFilter) : S.mbProc;
+  const q = document.getElementById('fsrch') ? document.getElementById('fsrch').value.toUpperCase().trim() : '';
   
+  // KPI counts (from raw mbProc, not grouped)
   const u=S.mbProc.filter(x=>x.route==='URGENTE').length;
   const iv=S.mbProc.filter(x=>x.route==='INVESTIGAR').length;
   const m=S.mbProc.filter(x=>x.route==='MECANICA').length;
@@ -778,49 +914,295 @@ function renderFleet() {
   document.getElementById('kf3').textContent=m;
   document.getElementById('kf4').textContent=S.mbProc.length;
   document.getElementById('kf5').textContent=S.mbAvg+(S.mbAvg!=='—'?'V':'');
-  
-  // MÁGICA 1: Contar quantas vezes o carro apareceu no Metabase
-  const pCount = {};
-  S.mbProc.forEach(x => pCount[x.placa] = (pCount[x.placa]||0)+1);
 
-  // MÁGICA 2: Filtrar pela barra de pesquisa
-  if (q) data = data.filter(d => d.placa.includes(q) || d.codes.some(c=>c.includes(q)));
+  // Apply filter on raw entries, then group
+  let filtered = S.fleetFilter ? S.mbProc.filter(d=>d.route===S.fleetFilter) : S.mbProc;
+  if (q) filtered = filtered.filter(d => d.placa.includes(q) || d.codes.some(c=>c.includes(q)));
 
-  const grid=document.getElementById('rgrid');
-  if (!data.length) { grid.innerHTML='<div class="empt"><div class="emico">🚗</div><div class="emtxt">Nenhum veículo encontrado</div></div>'; document.getElementById('ftbl').innerHTML=''; return; }
-  
-  grid.innerHTML=data.slice(0,24).map(d=>{
-    const c=d.v<12?'var(--red)':d.v<12.4?'var(--amber)':'var(--green)';
-    const pct=Math.min(100,Math.max(0,((d.v-10.5)/4)*100));
-    const cls=d.route==='URGENTE'?'eu':d.route==='INVESTIGAR'?'ei':'mec';
-    const bcls='bdg-'+cls;
-    const lbl=d.route==='URGENTE'?'⚡ ELÉTRICA URGENTE':d.route==='INVESTIGAR'?'🔍 INVESTIGAR':'🔧 MECÂNICA';
-    
-    // MÁGICA 3: O Selo de Reincidência
-    const rep = pCount[d.placa] > 1 ? `<span style="font-size:9px; background:var(--purple); color:#fff; padding:2px 6px; border-radius:3px; margin-left:8px; vertical-align:middle; font-weight:bold;">🔄 ${pCount[d.placa]}x</span>` : '';
-    
-    return `<div class="rc ${cls}"><div class="rch"><span class="rcpl">${d.placa}${rep}</span><span class="rcbdg ${bcls}">${lbl}</span></div>
-    <div class="rcb"><div class="rcbv" style="color:${c}">${d.v.toFixed(2)}V <span style="font-size:9px;font-weight:400;color:var(--text2);">bateria</span></div>
-    <div class="bbar" style="margin-bottom:8px;"><div class="bbf" style="width:${pct}%;background:${c};"></div></div>
-    <div class="rcc">${d.codes.map(c=>`<span class="rccode" onclick="goDTC('${c}')">${c}</span>`).join('')}</div>
-    <div class="rcins" style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-       <span>${d.route==='URGENTE'?'⚠ Risco bus-off':d.route==='INVESTIGAR'?'🔍 Verificar alternador':'🔧 Fluxo mecânico'}</span>
-       <span style="color:var(--text3); font-family:var(--mono); font-weight:bold;">${new Date(d.dt).toLocaleDateString('pt-BR')}</span>
-    </div>
-    </div></div>`;
+  const grouped = groupByPlate(filtered);
+  const totalGroups = grouped.length;
+  const recidGroups = grouped.filter(g=>g.count>1).length;
+
+  // Update subtitle
+  const sub = document.getElementById('fleet-subtitle');
+  if (sub) sub.textContent = `${totalGroups} placas · ${recidGroups} reincidentes`;
+
+  const grid = document.getElementById('rgrid');
+  if (!grouped.length) {
+    grid.innerHTML='<div class="empt"><div class="emico">🚗</div><div class="emtxt">Nenhum veículo encontrado</div></div>';
+    document.getElementById('ftbl').innerHTML='';
+    return;
+  }
+
+  grid.innerHTML = grouped.slice(0, 32).map(g => buildGroupCard(g)).join('');
+
+  // Table (one row per group/plate)
+  const tbody = document.getElementById('ftbl');
+  tbody.innerHTML = grouped.slice(0, 30).map(g => {
+    const cls = g.worstRoute==='URGENTE'?'tc':g.worstRoute==='INVESTIGAR'?'tw':'ti';
+    const batCls = g.lastV<12?'tc':g.lastV<12.4?'tw':'tok';
+    return `<tr style="cursor:pointer;" onclick="showPlateHistory('${g.placa}')">
+      <td class="tmono">${g.placa}
+        ${g.count>1?`<span style="color:var(--purple);font-size:9px;font-weight:bold;margin-left:6px;">🔄 ${g.count}x</span>`:''}
+      </td>
+      <td><span style="font-family:var(--mono);font-size:11px;color:var(--text2);">${g.count}</span></td>
+      <td>${[...new Set(g.allCodes)].map(c=>`<span class="tag ti" style="cursor:pointer;${g.repeatedCodes.includes(c)?'color:var(--purple);border-color:rgba(179,136,255,.4);':''}" onclick="event.stopPropagation();goDTC('${c}')">${c}</span>`).join(' ')}</td>
+      <td><span class="tag ${batCls}">${g.lastV.toFixed(2)}V</span></td>
+      <td><span class="tag ${cls}">${g.worstRoute}</span></td>
+    </tr>`;
   }).join('');
-  
-  const tbody=document.getElementById('ftbl');
-  tbody.innerHTML=data.slice(0,30).map(d=>`<tr>
-    <td class="tmono">${d.placa} ${pCount[d.placa] > 1 ? '<span style="color:var(--purple); font-size:9px; font-weight:bold;">(🔄 '+pCount[d.placa]+'x)</span>':''}</td>
-    <td>${new Date(d.dt).toLocaleString('pt-BR')}</td>
-    <td>${d.codes.map(c=>`<span class="tag ti" style="cursor:pointer;" onclick="goDTC('${c}')">${c}</span>`).join(' ')}</td>
-    <td><span class="tag ${d.v<12?'tc':d.v<12.4?'tw':'tok'}">${d.v.toFixed(2)}V</span></td>
-    <td><span class="tag ${d.route==='URGENTE'?'tc':d.route==='INVESTIGAR'?'tw':'ti'}">${d.route}</span></td>
-  </tr>`).join('');
 }
 
-function setFF(t) { S.fleetFilter=t; renderFleet(); }
+function buildGroupCard(g) {
+  const isRecid = g.count > 1;
+  const c = g.lastV<12?'var(--red)':g.lastV<12.4?'var(--amber)':'var(--green)';
+  const pct = Math.min(100, Math.max(0, ((g.lastV-10.5)/4)*100));
+  const cls = g.worstRoute==='URGENTE'?'eu':g.worstRoute==='INVESTIGAR'?'ei':'mec';
+  const bcls = 'bdg-'+cls;
+  const lbl = g.worstRoute==='URGENTE'?'⚡ ELÉTRICA URGENTE':g.worstRoute==='INVESTIGAR'?'🔍 INVESTIGAR':'🔧 MECÂNICA';
+
+  // Mini timeline (last 3 entries)
+  const tlEntries = g.entries.slice(0, 3);
+  const tlHtml = isRecid ? `
+    <div class="rc-timeline">
+      <div class="rc-tl-lbl">Histórico recente (${g.count} diagnóstico${g.count!==1?'s':''})</div>
+      <div class="rc-tl-entries">
+        ${tlEntries.map((e, i) => {
+          const ec = e.v<12?'var(--red)':e.v<12.4?'var(--amber)':'var(--green)';
+          return `<div class="rc-tl-entry" style="border-left-color:${ec}">
+            <div class="rc-tl-dot" style="background:${ec}"></div>
+            <div class="rc-tl-date">${new Date(e.dt).toLocaleDateString('pt-BR')}</div>
+            <div class="rc-tl-codes">${e.codes.join(', ')||'—'}</div>
+            <div class="rc-tl-v" style="color:${ec}">${e.v.toFixed(2)}V</div>
+          </div>`;
+        }).join('')}
+        ${g.count > 3 ? `<div style="font-size:8px;color:var(--text3);text-align:center;padding:3px;">+${g.count-3} mais...</div>` : ''}
+      </div>
+    </div>
+    <div class="rc-expand-hint">🔍 clique para histórico completo + resumo IA</div>` : '';
+
+  // Codes — mark repeated ones
+  const codesHtml = [...new Set(g.allCodes)].map(c => {
+    const isDup = g.repeatedCodes.includes(c);
+    return `<span class="rccode ${isDup?'dup':''}" onclick="event.stopPropagation();goDTC('${c}')" title="${isDup?'Código recorrente':''}">${c}${isDup?'↺':''}</span>`;
+  }).join('');
+
+  return `<div class="rc ${cls}${isRecid?' recid':''}" onclick="showPlateHistory('${g.placa}')">
+    <div class="rch">
+      <span class="rcpl">${g.placa}</span>
+      <div class="rch-right">
+        ${isRecid ? `<span class="rec-badge">🔄 ${g.count}x</span>` : ''}
+        <span class="rcbdg ${bcls}">${lbl}</span>
+      </div>
+    </div>
+    <div class="rcb">
+      <div class="rcbv" style="color:${c}">${g.lastV.toFixed(2)}V <span style="font-size:9px;font-weight:400;color:var(--text2);">última leitura</span></div>
+      <div class="bbar" style="margin-bottom:8px;"><div class="bbf" style="width:${pct}%;background:${c};"></div></div>
+      <div class="rcc">${codesHtml}</div>
+      <div class="rcins">
+        <span>${g.worstRoute==='URGENTE'?'⚠ Risco bus-off':g.worstRoute==='INVESTIGAR'?'🔍 Verificar alternador':'🔧 Fluxo mecânico'}</span>
+        <span style="color:var(--text3);font-family:var(--mono);font-weight:bold;">${new Date(g.lastDt).toLocaleDateString('pt-BR')}</span>
+      </div>
+      ${tlHtml}
+    </div>
+  </div>`;
+}
+
+// ════════ HISTORY MODAL ════════
+function showPlateHistory(placa) {
+  const allEntries = S.mbProc.filter(d => d.placa === placa)
+    .sort((a,b) => new Date(b.dt) - new Date(a.dt));
+  if (!allEntries.length) return;
+
+  const codeCounts = {};
+  allEntries.forEach(e => e.codes.forEach(c => { codeCounts[c] = (codeCounts[c]||0)+1; }));
+  const allCodes = Object.entries(codeCounts).sort((a,b)=>b[1]-a[1]).map(([c])=>c);
+  const repeatedCodes = allCodes.filter(c => codeCounts[c] > 1);
+
+  document.getElementById('hm-plate').textContent = placa;
+  document.getElementById('hm-sub').textContent = `${allEntries.length} diagnóstico${allEntries.length!==1?'s':', único'} · ${allCodes.length} código${allCodes.length!==1?'s distintos':'distinto'}`;
+
+  // Badges in header
+  const worst = allEntries.reduce((b, e) => {
+    const p={URGENTE:3,INVESTIGAR:2,MECANICA:1};
+    return (p[e.route]||0) > (p[b]||0) ? e.route : b;
+  }, allEntries[0].route);
+  const bcls = worst==='URGENTE'?'bdg-eu':worst==='INVESTIGAR'?'bdg-ei':'bdg-mec';
+  const blbl = worst==='URGENTE'?'⚡ ELÉTRICA URGENTE':worst==='INVESTIGAR'?'🔍 INVESTIGAR':'🔧 MECÂNICA';
+  document.getElementById('hm-badges').innerHTML =
+    `<span class="rcbdg ${bcls}">${blbl}</span>` +
+    (allEntries.length > 1 ? `<span class="rec-badge">🔄 ${allEntries.length}x reincidente</span>` : '');
+
+  // Build body HTML
+  let body = '';
+
+  // Pattern analysis block (only if more than 1 entry)
+  if (allEntries.length > 1) {
+    const maxCnt = Math.max(...Object.values(codeCounts), 1);
+    const voltMin = Math.min(...allEntries.map(e=>e.v));
+    const voltMax = Math.max(...allEntries.map(e=>e.v));
+    const voltAvg = (allEntries.reduce((s,e)=>s+e.v,0)/allEntries.length).toFixed(2);
+
+    body += `<div class="hm-pattern">
+      <div class="hm-pattern-title">📊 Análise de Padrão — ${allEntries.length} diagnósticos</div>
+      <div class="hm-pattern-stats">
+        <div class="hm-pstat"><div class="hm-pstat-val">${allEntries.length}</div><div class="hm-pstat-lbl">Diagnósticos</div></div>
+        <div class="hm-pstat"><div class="hm-pstat-val">${repeatedCodes.length}</div><div class="hm-pstat-lbl">DTCs Recorrentes</div></div>
+        <div class="hm-pstat"><div class="hm-pstat-val" style="color:${voltMin<12?'var(--red)':'var(--amber)'};">${voltMin.toFixed(2)}V</div><div class="hm-pstat-lbl">Tensão Mín</div></div>
+        <div class="hm-pstat"><div class="hm-pstat-val" style="color:var(--green);">${voltMax.toFixed(2)}V</div><div class="hm-pstat-lbl">Tensão Máx</div></div>
+      </div>
+      ${repeatedCodes.length ? `<div style="font-size:8px;color:var(--text2);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;">Códigos mais frequentes</div>
+      <div class="hm-code-freq">
+        ${allCodes.slice(0,8).map(c => `<div class="hm-cf-item">
+          <span class="hm-cf-code">${c}</span>
+          <span class="hm-cf-cnt">${codeCounts[c]}x</span>
+          <div class="hm-cf-bar"><div class="hm-cf-fill" style="width:${Math.round(codeCounts[c]/maxCnt*100)}%"></div></div>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>`;
+
+    // AI Summary area
+    body += `<div class="hm-ai-area" id="hm-ai-area-${placa.replace(/[^A-Z0-9]/g,'')}">
+      <div class="hm-ai-title">🧠 Resumo IA — Análise de Reincidência</div>
+      <div id="hm-ai-out-${placa.replace(/[^A-Z0-9]/g,'')}" style="font-size:10px;color:var(--text2);">
+        Clique em "Gerar Resumo" para que a IA analise o padrão de reincidência desta placa.
+      </div>
+      <button class="hm-ai-btn" id="hm-ai-btn-${placa.replace(/[^A-Z0-9]/g,'')}" onclick="genGroupAI('${placa}')">⚡ Gerar Resumo IA</button>
+    </div>`;
+  }
+
+  // Individual entries
+  body += `<div style="margin-top:${allEntries.length>1?'16px':'0'};">
+    <div style="font-size:8px;text-transform:uppercase;letter-spacing:2px;color:var(--text2);margin-bottom:10px;">${allEntries.length>1?'Todos os diagnósticos (cronológico inverso)':'Diagnóstico'}</div>`;
+
+  allEntries.forEach((e, i) => {
+    const ec = e.v<12?'var(--red)':e.v<12.4?'var(--amber)':'var(--green)';
+    const epct = Math.min(100,Math.max(0,((e.v-10.5)/4)*100));
+    const ecls = e.route==='URGENTE'?'eu':e.route==='INVESTIGAR'?'ei':'mec';
+    const ebcls = e.route==='URGENTE'?'bdg-eu':e.route==='INVESTIGAR'?'bdg-ei':'bdg-mec';
+    const elbl = e.route==='URGENTE'?'⚡ URGENTE':e.route==='INVESTIGAR'?'🔍 INVESTIGAR':'🔧 MECÂNICA';
+    body += `<div class="hm-entry ${ecls}">
+      <div class="hm-entry-head">
+        <div class="hm-entry-num">${allEntries.length - i}</div>
+        <div>
+          <div class="hm-entry-date">${new Date(e.dt).toLocaleString('pt-BR')}</div>
+        </div>
+        <span class="hm-entry-route ${ebcls}">${elbl}</span>
+        <div class="hm-entry-v" style="color:${ec}">${e.v.toFixed(2)}V</div>
+      </div>
+      <div class="hm-bat-bar"><div class="hm-bat-fill" style="width:${epct}%;background:${ec};"></div></div>
+      <div class="hm-entry-codes">
+        ${e.codes.map(c => {
+          const isRep = codeCounts[c] > 1;
+          return `<span class="hm-code-tag ${isRep?'dup':''}" onclick="goDTC('${c}')" title="${isRep?`Código recorrente (aparece ${codeCounts[c]}x)`:DB[c]?.d||''}">
+            ${c}${isRep?` ↺`:''} <span style="font-size:7px;opacity:.6;">${DB[c]?.si||''}</span>
+          </span>`;
+        }).join('')}
+        ${!e.codes.length ? '<span style="font-size:9px;color:var(--text3);">Sem códigos registrados</span>' : ''}
+      </div>
+    </div>`;
+  });
+
+  body += '</div>';
+
+  document.getElementById('hm-body').innerHTML = body;
+  document.getElementById('hist-modal').classList.add('open');
+}
+
+function closeHistModal() {
+  document.getElementById('hist-modal').classList.remove('open');
+}
+
+// Close modal on backdrop click
+document.getElementById('hist-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeHistModal();
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeHistModal();
+});
+
+// ════════ AI GROUP SUMMARY ════════
+async function genGroupAI(placa) {
+  const key = S.api();
+  const safeId = placa.replace(/[^A-Z0-9]/g, '');
+  const outEl = document.getElementById('hm-ai-out-' + safeId);
+  const btnEl = document.getElementById('hm-ai-btn-' + safeId);
+  if (!outEl || !btnEl) return;
+
+  if (!key) {
+    outEl.innerHTML = '<span style="color:var(--red);">⚠ Configure a chave Anthropic em ⚙ Config</span>';
+    return;
+  }
+
+  btnEl.textContent = '◌ Analisando padrão...'; btnEl.disabled = true;
+  outEl.innerHTML = '<div style="color:var(--text2);font-size:9px;letter-spacing:1px;">Processando histórico...</div>';
+
+  const allEntries = S.mbProc.filter(d => d.placa === placa)
+    .sort((a,b) => new Date(a.dt) - new Date(b.dt)); // chronological for AI
+
+  const codeCounts = {};
+  allEntries.forEach(e => e.codes.forEach(c => { codeCounts[c] = (codeCounts[c]||0)+1; }));
+  const repeatedCodes = Object.entries(codeCounts).filter(([,n])=>n>1).map(([c,n])=>`${c}(${n}x)`);
+
+  const entrySummary = allEntries.map((e, i) => {
+    const dtc = e.codes.map(c => {
+      const info = DB[c];
+      return info ? `${c} [${info.d}]` : c;
+    }).join(', ');
+    return `Diagnóstico ${i+1} — ${new Date(e.dt).toLocaleDateString('pt-BR')} — Tensão: ${e.v.toFixed(2)}V — Roteamento: ${e.route}\nCódigos: ${dtc||'nenhum'}`;
+  }).join('\n\n');
+
+  const prompt = `Você é um especialista em diagnóstico automotivo de frota.
+
+PLACA: ${placa}
+TOTAL DE DIAGNÓSTICOS: ${allEntries.length}
+CÓDIGOS RECORRENTES: ${repeatedCodes.join(', ')||'nenhum'}
+
+HISTÓRICO COMPLETO:
+${entrySummary}
+
+Analise o padrão de reincidência desta placa e forneça:
+
+1. **DIAGNÓSTICO DO PADRÃO**: O que o histórico sugere sobre a causa raiz real?
+2. **POR QUE O PROBLEMA PERSISTE**: Hipótese sobre por que o veículo continua voltando
+3. **RELAÇÃO BATERIA × DTCs**: Como a tensão de bateria se relaciona com os códigos de falha
+4. **RECOMENDAÇÃO TÉCNICA**: Procedimento específico para resolver definitivamente (com ferramentas e valores esperados)
+5. **PRIORIDADE**: Urgência da intervenção
+
+Seja direto, objetivo e técnico. Responda em português.`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await r.json();
+    if (data.error) {
+      outEl.innerHTML = `<span style="color:var(--red)">⚠ ${esc(data.error.message)}</span>`;
+    } else {
+      const txt = data.content?.[0]?.text || '';
+      outEl.innerHTML = `<div class="ai-cont">${esc(txt)}</div>`;
+    }
+  } catch(e) {
+    outEl.innerHTML = `<span style="color:var(--red)">⚠ ${esc(e.message)}</span>`;
+  }
+
+  btnEl.textContent = '↺ Regenerar Resumo'; btnEl.disabled = false;
+}
+
+function setFF(t) { S.fleetFilter = t; renderFleet(); }
 
 function renderHmap() {
   const c=new Array(24).fill(0);
@@ -834,11 +1216,9 @@ function renderHmap() {
 function updFChart() {
   const pl = document.getElementById('chp').value.toUpperCase();
   const hist = (S.batHist[pl]||[]).sort((a,b)=>a.t-b.t);
-  
-  const existingChart = Chart.getChart("fc1"); 
+  const existingChart = Chart.getChart("fc1");
   if (existingChart) existingChart.destroy();
   const ctx = document.getElementById('fc1').getContext('2d');
-
   S.charts.f = new Chart(ctx, {
     type:'line',
     data: {
@@ -857,24 +1237,11 @@ function updFChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: {
-        mode: 'index',
-        intersect: false,
-      },
-      plugins: {
-        legend: { display: false }
-      },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
       scales: {
-        x: { 
-            type:'time', time:{unit:'day'}, grid:{display:false}, 
-            ticks:{color:'#7f8ea8', font:{family:'JetBrains Mono', size:8}}
-        },
-        y: { 
-            min: 0,
-            max: 16, 
-            grid: {color:'#1e2435'}, 
-            ticks:{color:'#7f8ea8', font:{family:'JetBrains Mono', size:8}}
-        }
+        x: { type:'time', time:{unit:'day'}, grid:{display:false}, ticks:{color:'#7f8ea8', font:{family:'JetBrains Mono', size:8}} },
+        y: { min: 0, max: 16, grid:{color:'#1e2435'}, ticks:{color:'#7f8ea8', font:{family:'JetBrains Mono', size:8}} }
       }
     }
   });
@@ -908,7 +1275,7 @@ function renderDashLists(bc, avg) {
       <span style="font-family:var(--mono);font-size:12px;font-weight:700;color:${bat<11.5?'var(--red)':'var(--amber)'};">${bat.toFixed(2)}V</span>
     </div>`;
   }).join(''):'<div class="empt" style="height:100px;"><div class="emico">✅</div><div class="emtxt">Sem baterias críticas</div></div>';
-  
+
   const fr={};S.mbProc.forEach(d=>d.codes.forEach(c=>{fr[c]=(fr[c]||0)+1;}));
   const top=Object.entries(fr).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const mx=top[0]?.[1]||1;
@@ -921,7 +1288,7 @@ function renderDashLists(bc, avg) {
       <span style="font-size:8px;color:var(--text2);width:55px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d?.si||'—'}</span>
     </div>`;
   }).join(''):'<div class="empt" style="height:100px;"><div class="emico">⚡</div><div class="emtxt">Sem diagnósticos do Metabase</div></div>';
-  
+
   const alerts=[];
   const urg=S.mbProc.filter(x=>x.route==='URGENTE');
   if (urg.length) alerts.push({t:'err',m:`🔴 ${urg.length} veículo(s) com ELÉTRICA URGENTE — risco de bus-off — placas: ${urg.slice(0,3).map(x=>x.placa).join(', ')}${urg.length>3?'...':''}`});
@@ -935,16 +1302,23 @@ function renderDashLists(bc, avg) {
 }
 
 function renderDashChart() {
-  // SOLUÇÃO CANVAS AQUI:
   const existingChart = Chart.getChart("dc1");
   if (existingChart) existingChart.destroy();
   const ctx=document.getElementById('dc1').getContext('2d');
-
   const u=S.mbProc.filter(x=>x.route==='URGENTE').length;
   const iv=S.mbProc.filter(x=>x.route==='INVESTIGAR').length;
   const m=S.mbProc.filter(x=>x.route==='MECANICA').length;
   const hasData=u+iv+m>0;
   S.charts.d=new Chart(ctx,{type:'doughnut',data:{labels:['Urgente','Investigar','Mecânica'],datasets:[{data:hasData?[u,iv,m]:[1,1,1],backgroundColor:hasData?['rgba(255,23,68,.7)','rgba(240,160,0,.7)','rgba(41,182,246,.7)']:['rgba(255,255,255,.04)','rgba(255,255,255,.04)','rgba(255,255,255,.04)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#7f8ea8',font:{size:9,family:'JetBrains Mono'},boxWidth:9,padding:10}}}}});
+}
+
+function goDTC(code) {
+  pg('diag');
+  if (!S.dtcSess.find(x=>x.code===code)) {
+    S.dtcSess.push({code,data:lkup(code)});
+    renderChips();
+  }
+  selDTC(code);
 }
 
 // ════════ CONFIG ════════
@@ -983,7 +1357,7 @@ function loadCfg() {
   if(S.api()){document.getElementById('capi').value='●'.repeat(16);}
 }
 
-// ════════ SYNC ALL ════════
+// ════════ SYNC ALL — INTACTO ════════
 async function syncAll() {
   notify('◌ Sincronizando...','info');
   const ps=[];
