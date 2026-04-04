@@ -255,6 +255,32 @@ table.dt tr:hover td{background:var(--s3);}
 #nbar{position:fixed;bottom:0;left:0;right:0;z-index:9999;padding:7px 18px;font-size:9px;font-family:var(--mono);letter-spacing:1px;display:flex;align-items:center;gap:9px;opacity:0;transition:opacity .4s;pointer-events:none;}
 #nbar.show{opacity:1;}
 @media(max-width:768px){.kpir{grid-template-columns:repeat(2,1fr);}.g2,.g3,.g12,.g21{grid-template-columns:1fr;}}
+
+/* ── PRIORITY CARDS ── */
+.vc.p0{border-left:3px solid var(--red)!important;box-shadow:0 0 14px rgba(255,23,68,.18);}
+.vc.p0-plant{border-left:3px solid var(--red)!important;box-shadow:0 0 18px rgba(255,23,68,.28);animation:vc-pulse 2.5s infinite;}
+@keyframes vc-pulse{0%,100%{box-shadow:0 0 18px rgba(255,23,68,.28);}50%{box-shadow:0 0 28px rgba(255,23,68,.5);}}
+.vc.p1-plant{border-left:3px solid var(--orange)!important;box-shadow:0 0 12px rgba(255,109,0,.18);}
+.vc.repo-entry{border-left:3px solid var(--border3)!important;opacity:.82;}
+.vc.repo-entry .vc-pl{color:var(--text2);}
+.prio-badge{display:block;font-size:8px;font-weight:700;letter-spacing:.5px;padding:4px 8px;border-radius:4px;margin-bottom:8px;line-height:1.4;}
+.prio-badge.p0-plant{background:rgba(255,23,68,.15);color:var(--red);border:1px solid rgba(255,23,68,.4);}
+.prio-badge.p0{background:rgba(255,23,68,.1);color:#ff4444;border:1px solid rgba(255,68,68,.3);}
+.prio-badge.p1-plant{background:rgba(255,109,0,.12);color:var(--orange);border:1px solid rgba(255,109,0,.35);}
+.prio-badge.p1{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(240,160,0,.35);}
+.prio-badge.repo{background:rgba(55,69,96,.4);color:var(--text2);border:1px solid var(--border2);}
+.repo-cleared{font-size:8px;color:var(--text3);text-align:right;cursor:pointer;padding:2px 6px;border:1px solid var(--border);border-radius:3px;background:transparent;margin-top:5px;}
+.repo-cleared:hover{color:var(--red);border-color:var(--red);}
+/* Repo section banners */
+.repo-banner{border-radius:10px;padding:13px 14px;margin-bottom:16px;}
+.repo-banner.p0-banner{background:rgba(255,23,68,.06);border:1px solid rgba(255,23,68,.3);}
+.repo-banner.plant-banner{background:rgba(255,109,0,.06);border:1px solid rgba(255,109,0,.3);}
+.repo-banner.tracked-banner{background:rgba(240,160,0,.05);border:1px solid rgba(240,160,0,.2);}
+.repo-banner-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+/* Multi-code diagnosis button in modal */
+.diag-all-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(240,160,0,.1);border:1px solid var(--amber);color:var(--amber);border-radius:6px;cursor:pointer;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s;margin-left:auto;}
+.diag-all-btn:hover{background:rgba(240,160,0,.2);transform:translateY(-1px);}
+.diag-all-btn .btn-cnt{background:var(--amber);color:#000;border-radius:10px;padding:1px 7px;font-weight:700;font-size:8px;}
 </style>
 </head>
 <body>
@@ -268,6 +294,9 @@ table.dt tr:hover td{background:var(--s3);}
         <div style="font-size:9px;color:var(--text2);margin-top:2px;" id="hm-sub">—</div>
       </div>
       <div class="hm-badges" id="hm-badges"></div>
+      <button class="diag-all-btn" id="hm-diag-btn" onclick="goToPlateFullDiag()" title="Abre diagnóstico completo com IA para todos os códigos desta placa">
+        ⚡ Diagnosticar com IA <span class="btn-cnt" id="hm-code-cnt">0</span>
+      </button>
       <button class="hm-close" onclick="closeHistModal()">✕</button>
     </div>
     <div class="hm-body" id="hm-body"></div>
@@ -440,6 +469,34 @@ table.dt tr:hover td{background:var(--s3);}
       <div class="cfst" id="mbt"></div>
     </div>
   </div>
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="sttl" style="margin-bottom:12px;">Planilha Controle Baterias (Google Sheets)</div>
+      <div style="font-size:8px;color:var(--text2);line-height:1.8;margin-bottom:9px;">
+        Publique a aba <b style="color:var(--amber)">METABASE - tratado</b> como CSV:<br/>
+        Arquivo → Publicar na web → Selecionar aba → CSV → Publicar<br/>
+        Col <b>C</b> = placa P1 &nbsp;|&nbsp; Col <b>G</b> = localização &nbsp;|&nbsp; Col <b>I</b> e <b>J</b> = P0 (em venda)
+      </div>
+      <label class="cflbl">URL CSV Publicado</label>
+      <input type="text" id="csht" class="cfinp" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv&gid=..."/>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <button class="cfbtn a" onclick="savSheetsUrl()">💾 Salvar</button>
+        <button class="cfbtn g" onclick="loadSheetsData()">⬇ Carregar Planilha</button>
+      </div>
+      <div class="cfst" id="shtt"></div>
+    </div>
+    <div class="card">
+      <div class="sttl" style="margin-bottom:12px;">Repositório de Baterias Críticas</div>
+      <div style="font-size:8px;color:var(--text2);line-height:1.8;margin-bottom:9px;">
+        Veículos detectados com bateria crítica são armazenados localmente mesmo após a bateria ser carregada. O repositório persiste entre sessões para garantir que a troca seja realizada.
+      </div>
+      <div id="repo-stats" style="font-size:10px;color:var(--text2);margin-bottom:10px;padding:8px;background:var(--s3);border-radius:5px;">—</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <button class="cfbtn a" onclick="renderASBWithRepo()">↺ Atualizar</button>
+        <button class="cfbtn r" onclick="if(confirm('Limpar todo o repositório?')){clearAllRepo();}">🗑 Limpar Repositório</button>
+      </div>
+    </div>
+  </div>
   <div class="card">
     <div class="sttl" style="margin-bottom:9px;">SQL — Tabelas Supabase</div>
     <div style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:11px;font-size:8px;color:var(--blue);font-family:var(--mono);white-space:pre-wrap;line-height:1.9;max-height:180px;overflow-y:auto;">-- Criar tabelas no Supabase SQL Editor:
@@ -562,11 +619,13 @@ const S = {
   batHist: {}, fleetFilter: null,
   batFiltC: false, batFiltV: false,
   charts: {},
+  sheetsData: null,
   api: () => localStorage.getItem('k_api') || '',
   sbUrl: () => localStorage.getItem('k_sburl') || '',
   sbKey: () => localStorage.getItem('k_sbkey') || '',
   asbUrl: () => localStorage.getItem('k_asburl') || '',
   mbUrl: () => localStorage.getItem('k_mburl') || '',
+  sheetsUrl: () => localStorage.getItem('k_sheets_url') || '',
 };
 
 // ════════ NAV ════════
@@ -729,7 +788,8 @@ async function loadASB() {
     const data = await r.json();
     if (data.erro) throw new Error(data.erro);
     S.asb = Array.isArray(data) ? data : [];
-    renderASB(S.asb);
+    updateASBRepo(S.asb); // ← persist critical vehicles to repo
+    renderASBWithRepo();  // ← use new renderer
     setDot(1, 'ok');
     updKPIs();
     notify('✓ ASB: ' + S.asb.length + ' veículos', 'ok');
@@ -786,7 +846,7 @@ function filterB() {
     const mv = !S.batFiltV || v.vendido;
     return ms && mc && mv;
   });
-  renderASB(f);
+  renderASBWithRepo(f, q);
 }
 function toggleBF(t) {
   if (t==='c') { S.batFiltC=!S.batFiltC; document.getElementById('bf1').style.background=S.batFiltC?'var(--amber-dim)':''; }
@@ -1021,6 +1081,14 @@ function showPlateHistory(placa) {
 
   document.getElementById('hm-plate').textContent = placa;
   document.getElementById('hm-sub').textContent = `${allEntries.length} diagnóstico${allEntries.length!==1?'s':', único'} · ${allCodes.length} código${allCodes.length!==1?'s distintos':'distinto'}`;
+
+  // Store globally for "Diagnosticar Todos" button
+  window._diagPlaca = placa;
+  window._diagAllCodes = allCodes;
+  const cntEl = document.getElementById('hm-code-cnt');
+  if (cntEl) cntEl.textContent = allCodes.length;
+  const diagBtn = document.getElementById('hm-diag-btn');
+  if (diagBtn) diagBtn.style.display = allCodes.length > 0 ? 'flex' : 'none';
 
   // Badges in header
   const worst = allEntries.reduce((b, e) => {
@@ -1321,6 +1389,385 @@ function goDTC(code) {
   selDTC(code);
 }
 
+// ════════ CHANGE 1: MULTI-CODE FULL DIAGNOSIS ════════
+// Called from history modal "Diagnosticar com IA" button
+function goToPlateFullDiag() {
+  const codes = window._diagAllCodes || [];
+  const placa = window._diagPlaca || '';
+  if (!codes.length) return;
+  closeHistModal();
+  pg('diag');
+  // Load all codes into session
+  S.dtcSess = [];
+  codes.forEach(c => S.dtcSess.push({code:c, data:lkup(c)}));
+  renderChips();
+  // Show the first code in detail panel
+  selDTC(codes[0]);
+  document.getElementById('ai-ctrl').style.display = 'block';
+  // Auto-run multi-code AI if key present
+  if (S.api()) setTimeout(() => runAIAllCodes(placa, codes), 400);
+}
+
+async function runAIAllCodes(placa, codes) {
+  const key = S.api();
+  const out = document.getElementById('ai-out');
+  const btn = document.getElementById('aibtn');
+  if (!key) {
+    out.innerHTML = '<div style="color:var(--red);font-size:10px;">⚠ Configure a chave Anthropic em ⚙ Config</div>';
+    return;
+  }
+  btn.textContent = `◌ Analisando ${codes.length} código${codes.length!==1?'s':''}...`;
+  btn.disabled = true;
+  // Build code details list
+  const codeLines = codes.map(c => {
+    const d = lkup(c);
+    return `• ${c} — ${d?.d||'Código não catalogado'} [Sistema: ${d?.si||'—'} | Sev: ${d?.se||'—'}]`;
+  }).join('\n');
+  const prompt = `DIAGNÓSTICO TÉCNICO COMPLETO — PLACA: ${placa}
+${codes.length} CÓDIGOS DE FALHA DETECTADOS:
+
+${codeLines}
+
+─────────────────────────────────────
+Para CADA código acima, forneça:
+1. O que significa tecnicamente
+2. Causas prováveis (ordem de probabilidade)
+3. Como confirmar o diagnóstico (ferramentas e valores esperados)
+4. Ação corretiva recomendada
+
+─────────────────────────────────────
+ANÁLISE INTEGRADA (ao final):
+• Como estes códigos se relacionam entre si?
+• Existe uma causa raiz comum?
+• Ordem recomendada de diagnóstico e reparo
+• Estimativa de complexidade
+
+Seja direto, objetivo e prático. Responda em português.`;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await r.json();
+    if (data.error) {
+      out.innerHTML = `<span style="color:var(--red)">⚠ ${esc(data.error.message)}</span>`;
+    } else {
+      const txt = data.content?.[0]?.text || '';
+      out.innerHTML = `<div class="ai-out">
+        <div class="ai-lbl">🧠 Diagnóstico Completo — ${codes.length} Código${codes.length!==1?'s':''} · Placa ${placa}</div>
+        <div class="ai-cont">${esc(txt)}</div>
+      </div>`;
+    }
+  } catch(e) { out.innerHTML = `<span style="color:var(--red)">⚠ ${esc(e.message)}</span>`; }
+  btn.textContent = '↺ Reanalisar com IA'; btn.disabled = false;
+}
+
+// ════════ CHANGE 2: ASB REPOSITORY ════════
+function getASBRepo() {
+  try { return JSON.parse(localStorage.getItem('k_asb_repo') || '{}'); } catch(e) { return {}; }
+}
+function saveASBRepo(r) { localStorage.setItem('k_asb_repo', JSON.stringify(r)); }
+
+function updateASBRepo(vehicles) {
+  if (!vehicles?.length) return;
+  const repo = getASBRepo();
+  const now = new Date().toISOString().split('T')[0];
+  vehicles.forEach(v => {
+    const bat = parseFloat(v.bateria) || 0;
+    if (bat <= 0) return;
+    // Track any vehicle with bat < 12 OR already in repo
+    if (bat < 12 || repo[v.placa]) {
+      const prev = repo[v.placa];
+      const prevLoc = prev?.local_atual || '';
+      const newLoc = (v.local || '').trim();
+      const locChanged = prevLoc && newLoc && prevLoc !== newLoc;
+      const wasCP_SA = /^(CP|SA)/i.test(prevLoc);
+      const isJ1J2 = /^J[12]/i.test(newLoc);
+      const movedToSales = (prev?.moved_to_sales) || (locChanged && wasCP_SA && isJ1J2);
+      repo[v.placa] = {
+        placa: v.placa,
+        modelo: v.modelo || prev?.modelo || '',
+        bat_inicial: prev ? prev.bat_inicial : bat,
+        bat_atual: bat,
+        local_inicial: prev ? prev.local_inicial : newLoc,
+        local_atual: newLoc || prevLoc,
+        data_entrada: prev ? prev.data_entrada : now,
+        data_update: now,
+        vendido: !!v.vendido,
+        ativo: bat < 12,
+        moved_to_sales: movedToSales,
+        loc_history: prev?.loc_history
+          ? (locChanged ? [...prev.loc_history, {de:prevLoc, para:newLoc, data:now}] : prev.loc_history)
+          : (newLoc ? [{de:'', para:newLoc, data:now}] : []),
+      };
+    }
+  });
+  saveASBRepo(repo);
+}
+
+function clearRepoEntry(placa) {
+  const repo = getASBRepo(); delete repo[placa]; saveASBRepo(repo);
+  renderASBWithRepo(); updateRepoStats();
+}
+function clearAllRepo() {
+  saveASBRepo({}); renderASBWithRepo(); updateRepoStats();
+  notify('✓ Repositório limpo', 'ok');
+}
+
+function updateRepoStats() {
+  const el = document.getElementById('repo-stats');
+  if (!el) return;
+  const repo = getASBRepo();
+  const all = Object.values(repo);
+  const active = all.filter(r => r.ativo).length;
+  const charged = all.filter(r => !r.ativo).length;
+  const sheets = S.sheetsData;
+  const p0 = sheets ? all.filter(r => sheets.p0Plates?.has(r.placa)).length : 0;
+  el.innerHTML = all.length
+    ? `<span style="color:var(--text)">${all.length} rastreados</span> &nbsp;·&nbsp; <span style="color:var(--red)">${active} críticos agora</span> &nbsp;·&nbsp; <span style="color:var(--amber)">${charged} carregados (aguardando troca)</span>${p0?` &nbsp;·&nbsp; <span style="color:var(--red);font-weight:700;">${p0} P0 em venda</span>`:''}`
+    : 'Nenhum veículo rastreado ainda';
+}
+
+// ════════ CHANGE 2: GOOGLE SHEETS ════════
+function savSheetsUrl() {
+  const v = document.getElementById('csht').value.trim();
+  if (!v) { setSt('shtt','err','⚠ Cole o URL CSV'); return; }
+  localStorage.setItem('k_sheets_url', v);
+  setSt('shtt','ok','✓ URL salva — clique em Carregar');
+}
+
+function parseSheetsData(csv) {
+  const sep = csv.split('\n')[0].includes('\t') ? '\t' : ',';
+  const lines = csv.split(/\r?\n/).filter(l => l.trim());
+  const p1Plates = new Set(); const p0Plates = new Set();
+  const locations = {};
+  // Find data start — skip header rows
+  let start = 0;
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const low = lines[i].toLowerCase();
+    if (low.includes('prioridade') || low.includes('estado_bateria')) { start = i + 1; break; }
+  }
+  if (start === 0 && lines.length > 2) start = 2;
+  for (let i = start; i < lines.length; i++) {
+    const raw = lines[i].split(sep).map(c => c.trim().replace(/^"|"$/g, ''));
+    // Col C (idx 2) = P1 plate
+    const pC = (raw[2]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if (pC.length >= 7) { p1Plates.add(pC); if (raw[6]) locations[pC] = raw[6].trim(); }
+    // Col I (idx 8) = P0 CX Presencial
+    const pI = (raw[8]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if (pI.length >= 7) p0Plates.add(pI);
+    // Col J (idx 9) = P0 CX 1 locação
+    const pJ = (raw[9]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if (pJ.length >= 7) p0Plates.add(pJ);
+  }
+  return { p1Plates, p0Plates, locations };
+}
+
+async function loadSheetsData() {
+  const url = S.sheetsUrl();
+  if (!url) { notify('Configure o URL da planilha em ⚙ Config','warn'); pg('cfg'); return; }
+  setSt('shtt','info','◌ Carregando planilha...');
+  try {
+    const r = await fetch(url + (url.includes('?')?'&':'?') + '_t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const csv = await r.text();
+    S.sheetsData = parseSheetsData(csv);
+    // Cache parsed data
+    localStorage.setItem('k_sheets_data', JSON.stringify({
+      p1Plates: [...S.sheetsData.p1Plates],
+      p0Plates: [...S.sheetsData.p0Plates],
+      locations: S.sheetsData.locations,
+      loaded: new Date().toISOString()
+    }));
+    const p1c = S.sheetsData.p1Plates.size, p0c = S.sheetsData.p0Plates.size;
+    setSt('shtt','ok',`✓ ${p1c} P1, ${p0c} P0 carregadas · ${new Date().toLocaleTimeString('pt-BR')}`);
+    notify(`✓ Planilha: ${p1c} placas P1 + ${p0c} P0 carregadas`, 'ok');
+    renderASBWithRepo();
+    updateRepoStats();
+  } catch(e) { setSt('shtt','err','⚠ ' + e.message); notify('⚠ Planilha: ' + e.message,'err'); }
+}
+
+function loadCachedSheets() {
+  try {
+    const d = JSON.parse(localStorage.getItem('k_sheets_data') || 'null');
+    if (!d) return;
+    S.sheetsData = {
+      p1Plates: new Set(d.p1Plates||[]),
+      p0Plates: new Set(d.p0Plates||[]),
+      locations: d.locations||{},
+    };
+    if (d.loaded) {
+      const when = new Date(d.loaded).toLocaleString('pt-BR');
+      setSt('shtt','ok',`✓ Cache: ${d.p1Plates?.length||0} P1, ${d.p0Plates?.length||0} P0 · ${when}`);
+    }
+  } catch(e) {}
+}
+
+// ════════ CHANGE 2: PRIORITY HELPERS ════════
+function getVehiclePriority(plate, localASB) {
+  const sh = S.sheetsData;
+  if (!sh) return null;
+  const isP0 = sh.p0Plates?.has(plate);
+  const isP1 = sh.p1Plates?.has(plate);
+  if (!isP0 && !isP1) return null;
+  // Use sheets location if available, fallback to ASB local
+  const loc = (sh.locations?.[plate] || localASB || '').toUpperCase();
+  const isJ = /^J[12]/.test(loc);
+  if (isP0 && isJ) return {
+    level:'p0-plant', cls:'p0-plant',
+    label:'🚨 ENTREGA URGENTE — EM VENDA · PLANTA ' + (loc.substring(0,2)) + ' · TROCAR BATERIA ANTES DA ENTREGA AO DRIVER',
+    short:'🚨 P0 · PLANTA VENDA'
+  };
+  if (isP0) return {
+    level:'p0', cls:'p0',
+    label:'🔴 EM VENDA — TROCAR BATERIA URGENTE ANTES DA ENTREGA',
+    short:'🔴 P0 · EM VENDA'
+  };
+  if (isP1 && isJ) return {
+    level:'p1-plant', cls:'p1-plant',
+    label:'🏭 MOVIDO PARA PLANTA DE VENDA (' + (loc.substring(0,2)) + ') — TROCAR BATERIA ANTES DA ENTREGA AO DRIVER',
+    short:'⚠ P1 · PLANTA ' + loc.substring(0,2)
+  };
+  return {
+    level:'p1', cls:'p1',
+    label:'⚠ BATERIA CRÍTICA — PROGRAMAR TROCA',
+    short:'⚠ P1 · TROCAR'
+  };
+}
+
+// ════════ CHANGE 2: ENHANCED RENDER ════════
+function renderASBWithRepo(filteredVeh, searchQ) {
+  const vehicles = filteredVeh !== undefined ? filteredVeh : S.asb;
+  const repo = getASBRepo();
+  const apiPlates = new Set(vehicles.map(v => v.placa));
+  updateRepoStats();
+
+  let html = '';
+
+  // ── SECTION 1: P0 URGENT (sold vehicles needing battery) ──
+  if (S.sheetsData?.p0Plates?.size) {
+    const p0live = vehicles.filter(v => S.sheetsData.p0Plates.has(v.placa));
+    const p0repo = Object.values(repo).filter(r => S.sheetsData.p0Plates.has(r.placa) && !apiPlates.has(r.placa));
+    const p0all = [...p0live.map(v=>({...v, _src:'live'})), ...p0repo.map(r=>({placa:r.placa,modelo:r.modelo,bateria:r.bat_atual,local:r.local_atual,_src:'repo',_repo:r}))];
+    if (p0all.length) {
+      html += `<div class="repo-banner p0-banner">
+        <div class="repo-banner-title" style="color:var(--red);">
+          🚨 P0 — TROCAR BATERIA ANTES DA ENTREGA
+          <span style="font-size:8px;font-weight:400;padding:2px 7px;border:1px solid rgba(255,23,68,.4);border-radius:3px;">${p0all.length} veículo${p0all.length!==1?'s':''}</span>
+          <span style="font-size:8px;color:var(--text2);font-weight:400;margin-left:4px;">Veículos em processo de venda — bateria crítica</span>
+        </div>
+        <div class="vgrid">${p0all.map(v => renderVCPrio(v, getVehiclePriority(v.placa, v.local))).join('')}</div>
+      </div>`;
+    }
+  }
+
+  // ── SECTION 2: J1/J2 PLANT (non-P0 moved to sales plant) ──
+  if (S.sheetsData?.locations) {
+    const j12 = vehicles.filter(v => {
+      const loc = (S.sheetsData.locations[v.placa] || v.local || '').toUpperCase();
+      return /^J[12]/.test(loc) && !S.sheetsData.p0Plates?.has(v.placa);
+    });
+    if (j12.length) {
+      html += `<div class="repo-banner plant-banner">
+        <div class="repo-banner-title" style="color:var(--orange);">
+          🏭 PLANTA DE VENDA J1/J2 — MOVIDOS PARA VENDA
+          <span style="font-size:8px;font-weight:400;color:var(--text2);margin-left:4px;">${j12.length} veículo${j12.length!==1?'s':''} · trocar bateria antes da entrega ao driver</span>
+        </div>
+        <div class="vgrid">${j12.map(v => renderVCPrio(v, getVehiclePriority(v.placa, v.local))).join('')}</div>
+      </div>`;
+    }
+  }
+
+  // ── SECTION 3: REPOSITORY — charged but awaiting replacement ──
+  const repoCharged = Object.values(repo).filter(r => {
+    if (r.ativo) return false; // still critical, shows in section 4 below
+    if (apiPlates.has(r.placa)) return false; // in current API feed
+    if (searchQ && !r.placa.includes(searchQ) && !r.modelo?.toUpperCase().includes(searchQ)) return false;
+    return true;
+  });
+  if (repoCharged.length) {
+    html += `<div class="repo-banner tracked-banner">
+      <div class="repo-banner-title" style="color:var(--amber);">
+        🗄 REPOSITÓRIO — BATERIA CARREGADA (troca ainda pendente)
+        <span style="font-size:8px;font-weight:400;color:var(--text2);margin-left:4px;">${repoCharged.length} veículo${repoCharged.length!==1?'s':''} · saíram da lista mas ainda precisam da troca definitiva</span>
+      </div>
+      <div class="vgrid">${repoCharged.map(r => renderVCRepoCard(r, getVehiclePriority(r.placa, r.local_atual))).join('')}</div>
+    </div>`;
+  }
+
+  // ── SECTION 4: REGULAR by base (existing logic) ──
+  if (!vehicles.length && !repoCharged.length) { renderASBErr(searchQ ? 'Nenhum veículo encontrado' : 'Sem dados'); return; }
+
+  // Skip vehicles already shown in P0 section
+  const shownP0 = new Set();
+  if (S.sheetsData?.p0Plates) vehicles.forEach(v => { if (S.sheetsData.p0Plates.has(v.placa)) shownP0.add(v.placa); });
+
+  const grps = {};
+  vehicles.filter(v => !shownP0.has(v.placa)).forEach(v => {
+    const loc = (S.sheetsData?.locations?.[v.placa] || v.local || '').toUpperCase();
+    if (S.sheetsData?.locations && /^J[12]/.test(loc) && !S.sheetsData.p0Plates?.has(v.placa)) return; // skip J1/J2 shown above
+    const b = v.local ? v.local.split(/[-\/]/)[0].trim().toUpperCase() : 'SEM BASE';
+    if (!grps[b]) grps[b] = [];
+    grps[b].push(v);
+  });
+
+  html += Object.entries(grps).sort(([a],[b])=>a.localeCompare(b)).map(([base, vs]) => {
+    const crit = vs.filter(v => !v.vendido && parseFloat(v.bateria) < 12).length;
+    return `<div class="bsec">
+      <div class="bhead">
+        <span class="bname">📍 ${base}</span>
+        <span class="bcnt">${vs.length} veículo${vs.length!==1?'s':''}</span>
+        ${vs.filter(v=>v.vendido).length?`<span class="bcnt" style="color:var(--red);">${vs.filter(v=>v.vendido).length} vendido${vs.filter(v=>v.vendido).length!==1?'s':''}</span>`:''}
+        ${crit?`<span class="bcnt" style="color:var(--amber);">⚠ ${crit} bat crítica</span>`:''}
+      </div>
+      <div class="vgrid">${vs.map(v => renderVCPrio(v, getVehiclePriority(v.placa, v.local))).join('')}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('bat-content').innerHTML = html;
+}
+
+function renderVCPrio(v, priority) {
+  const bat = parseFloat(v.bateria) || 0;
+  const pct = Math.min(100, Math.max(0, ((bat-10.5)/4)*100));
+  const c = bat < 12 ? 'var(--red)' : bat < 12.4 ? 'var(--amber)' : 'var(--green)';
+  const baseCls = v.vendido ? 'sold' : priority ? priority.cls : (bat < 12 ? 'crit' : 'ok');
+  const isRepo = v._src === 'repo';
+  return `<div class="vc ${baseCls}${isRepo?' repo-entry':''}">
+    ${v.vendido ? '<span class="vcbdg sold">VENDIDO</span>' : bat<12 && !priority ? '<span class="vcbdg urg">⚠ CRÍTICA</span>' : ''}
+    ${priority ? `<span class="prio-badge ${priority.cls}">${priority.label}</span>` : ''}
+    <div class="vc-pl">${v.placa}</div>
+    <div class="vc-mod">${v.modelo||'—'}</div>
+    <div class="vc-bat">
+      <span class="vc-bv" style="color:${c}">${bat.toFixed(2)}V${isRepo?'<span style="font-size:7px;color:var(--text3);"> repositório</span>':''}</span>
+      <div class="bbar"><div class="bbf" style="width:${pct}%;background:${c};"></div></div>
+    </div>
+    <div class="vc-loc">${v.local||'—'}</div>
+  </div>`;
+}
+
+function renderVCRepoCard(r, priority) {
+  const bat = r.bat_atual || 0;
+  const pct = Math.min(100, Math.max(0, ((bat-10.5)/4)*100));
+  const c = bat < 12 ? 'var(--red)' : bat < 12.4 ? 'var(--amber)' : '#64748b';
+  const baseCls = priority ? priority.cls : 'repo-entry';
+  return `<div class="vc ${baseCls} repo-entry">
+    ${priority ? `<span class="prio-badge ${priority.cls}">${priority.label}</span>` : `<span class="prio-badge repo">🗄 AGUARDANDO TROCA — bateria foi carregada mas substituição pendente</span>`}
+    <div class="vc-pl" style="${!priority?'color:var(--text2)':''}">${r.placa}</div>
+    <div class="vc-mod">${r.modelo||'—'}</div>
+    <div class="vc-bat">
+      <span class="vc-bv" style="color:${c}">${bat.toFixed(2)}V <span style="font-size:7px;color:var(--text3);">última leit.</span></span>
+      <div class="bbar"><div class="bbf" style="width:${pct}%;background:${c};"></div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="vc-loc">${r.local_atual||'—'} ${r.moved_to_sales?'<span style="color:var(--orange);font-size:7px;">→VENDA</span>':''}</div>
+      <button class="repo-cleared" onclick="clearRepoEntry('${r.placa}')">✓ Troca realizada</button>
+    </div>
+    <div style="font-size:7px;color:var(--text3);margin-top:3px;">Desde ${r.data_entrada||'—'}</div>
+  </div>`;
+}
+
 // ════════ CONFIG ════════
 function savAPI() {
   const v=document.getElementById('capi').value.trim();
@@ -1355,6 +1802,9 @@ function loadCfg() {
   const m=S.mbUrl(); if(m){document.getElementById('cmb').value=m;}
   const su=S.sbUrl(); if(su){document.getElementById('csburl').value=su;}
   if(S.api()){document.getElementById('capi').value='●'.repeat(16);}
+  const sh=S.sheetsUrl(); if(sh){const el=document.getElementById('csht');if(el)el.value=sh;}
+  loadCachedSheets(); // restore cached sheets data
+  updateRepoStats();
 }
 
 // ════════ SYNC ALL — INTACTO ════════
