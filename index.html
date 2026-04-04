@@ -473,8 +473,10 @@ table.dt tr:hover td{background:var(--s3);}
     <div class="card">
       <div class="sttl" style="margin-bottom:12px;">Planilha Controle Baterias (Google Sheets)</div>
       <div style="font-size:8px;color:var(--text2);line-height:1.8;margin-bottom:9px;">
-        Publique a aba <b style="color:var(--amber)">METABASE - tratado</b> como CSV:<br/>
-        Arquivo → Publicar na web → Selecionar aba → CSV → Publicar<br/>
+        <b style="color:var(--amber);">Pré-requisito:</b> Planilha deve ser compartilhada como<br/>
+        <b style="color:var(--green);">"Qualquer pessoa com o link pode ver"</b><br/>
+        (Compartilhar → alterar para "Qualquer pessoa")<br/><br/>
+        Cole abaixo o link de edição ou exportação — o sistema converte automaticamente.<br/>
         Col <b>C</b> = placa P1 &nbsp;|&nbsp; Col <b>G</b> = localização &nbsp;|&nbsp; Col <b>I</b> e <b>J</b> = P0 (em venda)
       </div>
       <label class="cflbl">URL CSV Publicado</label>
@@ -1531,48 +1533,150 @@ function updateRepoStats() {
 
 // ════════ CHANGE 2: GOOGLE SHEETS ════════
 function savSheetsUrl() {
-  const v = document.getElementById('csht').value.trim();
-  if (!v) { setSt('shtt','err','⚠ Cole o URL CSV'); return; }
-  localStorage.setItem('k_sheets_url', v);
-  setSt('shtt','ok','✓ URL salva — clique em Carregar');
+  const raw = document.getElementById('csht').value.trim();
+  if (!raw) { setSt('shtt','err','⚠ Cole o URL da planilha'); return; }
+  const normalized = normalizeGSheetsUrl(raw);
+  localStorage.setItem('k_sheets_url', normalized);
+  document.getElementById('csht').value = normalized;
+  setSt('shtt','ok','✓ URL salva — clique em ⬇ Carregar Planilha');
+}
+
+// Convert any Google Sheets URL to the export CSV format
+function normalizeGSheetsUrl(url) {
+  // Already a proper export or pub URL → return as-is
+  if (url.includes('/export?') || url.includes('/pub?')) return url;
+
+  // Extract sheet ID and gid from edit URL
+  const idMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (!idMatch) return url; // unknown format, pass through
+  const sheetId = idMatch[1];
+
+  // Extract gid (tab id)
+  const gidMatch = url.match(/[?&#]gid=(\d+)/);
+  const gid = gidMatch ? gidMatch[1] : '0';
+
+  // Use /export endpoint — works for publicly shared sheets without needing "Publish to web"
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+}
+
+// CSV parser — handles comma, semicolon, tab separators + quoted fields
+function parseCSVLine(line, sep) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQ = !inQ; continue; }
+    if (!inQ && ch === sep) { result.push(cur.trim()); cur = ''; continue; }
+    cur += ch;
+  }
+  result.push(cur.trim());
+  return result;
 }
 
 function parseSheetsData(csv) {
-  const sep = csv.split('\n')[0].includes('\t') ? '\t' : ',';
-  const lines = csv.split(/\r?\n/).filter(l => l.trim());
-  const p1Plates = new Set(); const p0Plates = new Set();
+  // Detect separator
+  const firstLine = csv.split('\n')[0];
+  const sep = firstLine.includes('\t') ? '\t' : firstLine.includes(';') ? ';' : ',';
+
+  const rawLines = csv.split(/\r?\n/);
+  const lines = rawLines.filter(l => l.trim());
+  const p1Plates = new Set();
+  const p0Plates = new Set();
   const locations = {};
-  // Find data start — skip header rows
-  let start = 0;
+
+  // Find header row — look for 'prioridade' or 'placa' or 'estado'
+  let headerIdx = -1;
   for (let i = 0; i < Math.min(5, lines.length); i++) {
     const low = lines[i].toLowerCase();
-    if (low.includes('prioridade') || low.includes('estado_bateria')) { start = i + 1; break; }
+    if (low.includes('prioridade') || low.includes('estado_bateria') || (low.includes('placa') && low.includes('modelo'))) {
+      headerIdx = i;
+      break;
+    }
   }
-  if (start === 0 && lines.length > 2) start = 2;
-  for (let i = start; i < lines.length; i++) {
-    const raw = lines[i].split(sep).map(c => c.trim().replace(/^"|"$/g, ''));
-    // Col C (idx 2) = P1 plate
-    const pC = (raw[2]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if (pC.length >= 7) { p1Plates.add(pC); if (raw[6]) locations[pC] = raw[6].trim(); }
-    // Col I (idx 8) = P0 CX Presencial
-    const pI = (raw[8]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const dataStart = headerIdx >= 0 ? headerIdx + 1 : (lines.length > 2 ? 2 : 1);
+
+  // Try to auto-detect column indices from header
+  let colPlaca = 2, colLoc = 6, colP0A = 8, colP0B = 9;
+  if (headerIdx >= 0) {
+    const hdr = parseCSVLine(lines[headerIdx], sep).map(h => h.toLowerCase().trim());
+    const findCol = (...terms) => { for (const t of terms) { const i = hdr.findIndex(h => h.includes(t)); if (i >= 0) return i; } return -1; };
+    const cp = findCol('placa'); if (cp >= 0) colPlaca = cp;
+    const cl = findCol('ultima_localizacao','localizacao','local'); if (cl >= 0) colLoc = cl;
+    // P0 columns — look for "cx presencial" or "cx 1 locação" in headers
+    // The sheet has them in col I (idx 8) and J (idx 9) — keep defaults unless we find them
+    const ci = hdr.findIndex(h => h.includes('presencial'));
+    const cj = hdr.findIndex(h => h.includes('loca') && h !== hdr[ci]);
+    if (ci >= 0) colP0A = ci;
+    if (cj >= 0 && cj !== ci) colP0B = cj;
+  }
+
+  let parsedCount = 0;
+  for (let i = dataStart; i < lines.length; i++) {
+    const raw = parseCSVLine(lines[i], sep);
+    if (raw.length < 3) continue;
+
+    // Col C (or detected) = P1 plate
+    const pC = (raw[colPlaca]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if (pC.length >= 7) {
+      p1Plates.add(pC);
+      const loc = (raw[colLoc]||'').trim();
+      if (loc) locations[pC] = loc;
+      parsedCount++;
+    }
+
+    // Col I = P0 CX Presencial
+    const pI = (raw[colP0A]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
     if (pI.length >= 7) p0Plates.add(pI);
-    // Col J (idx 9) = P0 CX 1 locação
-    const pJ = (raw[9]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+
+    // Col J = P0 CX 1 locação
+    const pJ = (raw[colP0B]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
     if (pJ.length >= 7) p0Plates.add(pJ);
   }
+
+  console.log(`[Sheets] Parsed ${parsedCount} P1, ${p0Plates.size} P0 from ${lines.length - dataStart} rows`);
   return { p1Plates, p0Plates, locations };
 }
 
-async function loadSheetsData() {
-  const url = S.sheetsUrl();
-  if (!url) { notify('Configure o URL da planilha em ⚙ Config','warn'); pg('cfg'); return; }
-  setSt('shtt','info','◌ Carregando planilha...');
+async function fetchCSV(url) {
+  // Strategy 1: direct fetch (works if sheet is "Anyone with link can view" + export URL)
   try {
-    const r = await fetch(url + (url.includes('?')?'&':'?') + '_t=' + Date.now());
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const csv = await r.text();
+    const r = await fetch(url, { mode: 'cors' });
+    if (r.ok) { const txt = await r.text(); if (txt.length > 20) return txt; }
+  } catch(e) { console.warn('[Sheets] Direct fetch failed:', e.message); }
+
+  // Strategy 2: allorigins CORS proxy
+  const proxy1 = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+  try {
+    const r = await fetch(proxy1);
+    if (r.ok) { const txt = await r.text(); if (txt.length > 20) return txt; }
+  } catch(e) { console.warn('[Sheets] allorigins failed:', e.message); }
+
+  // Strategy 3: corsproxy.io
+  const proxy2 = 'https://corsproxy.io/?' + encodeURIComponent(url);
+  try {
+    const r = await fetch(proxy2);
+    if (r.ok) { const txt = await r.text(); if (txt.length > 20) return txt; }
+  } catch(e) { console.warn('[Sheets] corsproxy failed:', e.message); }
+
+  throw new Error('Não foi possível acessar a planilha. Verifique se ela está compartilhada como "Qualquer pessoa com o link pode ver" e tente novamente.');
+}
+
+async function loadSheetsData() {
+  const rawUrl = S.sheetsUrl();
+  if (!rawUrl) { notify('Configure o URL da planilha em ⚙ Config','warn'); pg('cfg'); return; }
+
+  const url = normalizeGSheetsUrl(rawUrl);
+  // Update field with normalized URL so user can see it
+  const el = document.getElementById('csht');
+  if (el) el.value = url;
+  localStorage.setItem('k_sheets_url', url);
+
+  setSt('shtt','info','◌ Conectando à planilha...');
+
+  try {
+    const csv = await fetchCSV(url);
     S.sheetsData = parseSheetsData(csv);
+
     // Cache parsed data
     localStorage.setItem('k_sheets_data', JSON.stringify({
       p1Plates: [...S.sheetsData.p1Plates],
@@ -1580,12 +1684,18 @@ async function loadSheetsData() {
       locations: S.sheetsData.locations,
       loaded: new Date().toISOString()
     }));
-    const p1c = S.sheetsData.p1Plates.size, p0c = S.sheetsData.p0Plates.size;
+
+    const p1c = S.sheetsData.p1Plates.size;
+    const p0c = S.sheetsData.p0Plates.size;
     setSt('shtt','ok',`✓ ${p1c} P1, ${p0c} P0 carregadas · ${new Date().toLocaleTimeString('pt-BR')}`);
-    notify(`✓ Planilha: ${p1c} placas P1 + ${p0c} P0 carregadas`, 'ok');
+    notify(`✓ Planilha: ${p1c} placas P1 + ${p0c} P0 em venda`, 'ok');
     renderASBWithRepo();
     updateRepoStats();
-  } catch(e) { setSt('shtt','err','⚠ ' + e.message); notify('⚠ Planilha: ' + e.message,'err'); }
+  } catch(e) {
+    setSt('shtt','err','⚠ ' + e.message);
+    notify('⚠ Planilha: ' + e.message, 'err');
+    console.error('[Sheets] loadSheetsData error:', e);
+  }
 }
 
 function loadCachedSheets() {
