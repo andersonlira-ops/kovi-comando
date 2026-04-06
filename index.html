@@ -1790,20 +1790,20 @@ function loadCachedSheets() {
 }
 
 // ════════ CHANGE 2: PRIORITY HELPERS ════════
+function cleanPlate(p) { return (p||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+
 function getVehiclePriority(plate, localASB) {
   const sh = S.sheetsData;
   if (!sh) return null;
-  const isP0 = sh.p0Plates?.has(plate);
-  const isP1 = sh.p1Plates?.has(plate);
+  const cp = cleanPlate(plate);
+  const isP0 = sh.p0Plates?.has(cp);
+  const isP1 = sh.p1Plates?.has(cp);
   if (!isP0 && !isP1) return null;
 
-  // Location is PHYSICAL only — J1/J2 prefix = base name, NOT sales indicator
-  // Sales is ONLY confirmed when plate appears in col I or col J (p0Plates)
   const loc = (localASB || '').toUpperCase();
-  const locPrefix = loc.split('-')[0] || loc.substring(0,2); // e.g. "J1", "CP", "SA"
-  const isJ = /^J[12]/.test(loc); // physically at a J plant
+  const locPrefix = loc.split('-')[0] || loc.substring(0,2); 
+  const isJ = /^J[12]/.test(loc); 
 
-  // P0 = confirmed in sales (col I or J) — regardless of physical location
   if (isP0 && isJ) return {
     level:'p0-plant', cls:'p0-plant',
     label:'🚨 EM VENDA + FISICAMENTE NA PLANTA ' + locPrefix + ' — TROCAR BATERIA ANTES DA ENTREGA AO DRIVER',
@@ -1815,8 +1815,6 @@ function getVehiclePriority(plate, localASB) {
     short:'🔴 P0 · EM VENDA'
   };
 
-  // P1 = battery critical (col C) — NOT in sales cols I/J
-  // If physically at J1/J2 it is just the base location, no sales implication
   return {
     level:'p1', cls:'p1',
     label:'⚠ BATERIA CRÍTICA — PROGRAMAR TROCA' + (isJ ? ' · Base ' + locPrefix : ''),
@@ -1828,15 +1826,15 @@ function getVehiclePriority(plate, localASB) {
 function renderASBWithRepo(filteredVeh, searchQ) {
   const vehicles = filteredVeh !== undefined ? filteredVeh : S.asb;
   const repo = getASBRepo();
-  const apiPlates = new Set(vehicles.map(v => v.placa));
+  const apiPlates = new Set(vehicles.map(v => cleanPlate(v.placa)));
   updateRepoStats();
 
   let html = '';
 
   // ── SECTION 1: P0 URGENT (sold vehicles needing battery) ──
   if (S.sheetsData?.p0Plates?.size) {
-    const p0live = vehicles.filter(v => S.sheetsData.p0Plates.has(v.placa));
-    const p0repo = Object.values(repo).filter(r => S.sheetsData.p0Plates.has(r.placa) && !apiPlates.has(r.placa));
+    const p0live = vehicles.filter(v => S.sheetsData.p0Plates.has(cleanPlate(v.placa)));
+    const p0repo = Object.values(repo).filter(r => S.sheetsData.p0Plates.has(cleanPlate(r.placa)) && !apiPlates.has(cleanPlate(r.placa)));
     const p0all = [...p0live.map(v=>({...v, _src:'live'})), ...p0repo.map(r=>({placa:r.placa,modelo:r.modelo,bateria:r.bat_atual,local:r.local_atual,_src:'repo',_repo:r}))];
     if (p0all.length) {
       html += `<div class="repo-banner p0-banner">
@@ -1852,8 +1850,8 @@ function renderASBWithRepo(filteredVeh, searchQ) {
 
   // ── SECTION 3: REPOSITORY — charged but awaiting replacement ──
   const repoCharged = Object.values(repo).filter(r => {
-    if (r.ativo) return false; // still critical, shows in section 4 below
-    if (apiPlates.has(r.placa)) return false; // in current API feed
+    if (r.ativo) return false; 
+    if (apiPlates.has(cleanPlate(r.placa))) return false; 
     if (searchQ && !r.placa.includes(searchQ) && !r.modelo?.toUpperCase().includes(searchQ)) return false;
     return true;
   });
@@ -1870,12 +1868,11 @@ function renderASBWithRepo(filteredVeh, searchQ) {
   // ── SECTION 4: REGULAR by base (existing logic) ──
   if (!vehicles.length && !repoCharged.length) { renderASBErr(searchQ ? 'Nenhum veículo encontrado' : 'Sem dados'); return; }
 
-  // Skip vehicles already shown in P0 section
   const shownP0 = new Set();
-  if (S.sheetsData?.p0Plates) vehicles.forEach(v => { if (S.sheetsData.p0Plates.has(v.placa)) shownP0.add(v.placa); });
+  if (S.sheetsData?.p0Plates) vehicles.forEach(v => { if (S.sheetsData.p0Plates.has(cleanPlate(v.placa))) shownP0.add(cleanPlate(v.placa)); });
 
   const grps = {};
-  vehicles.filter(v => !shownP0.has(v.placa)).forEach(v => {
+  vehicles.filter(v => !shownP0.has(cleanPlate(v.placa))).forEach(v => {
     const b = v.local ? v.local.split(/[-\/]/)[0].trim().toUpperCase() : 'SEM BASE';
     if (!grps[b]) grps[b] = [];
     grps[b].push(v);
@@ -1903,7 +1900,7 @@ function renderVCPrio(v, priority) {
   const c = bat < 12 ? 'var(--red)' : bat < 12.4 ? 'var(--amber)' : 'var(--green)';
   const baseCls = v.vendido ? 'sold' : priority ? priority.cls : (bat < 12 ? 'crit' : 'ok');
   const isRepo = v._src === 'repo';
-  const isP0 = S.sheetsData?.p0Plates?.has(v.placa);
+  const isP0 = S.sheetsData?.p0Plates?.has(cleanPlate(v.placa));
   const saleChips = isP0 ? buildSaleChips(v.placa) : '';
   const clickAttr = `onclick="openSaleModal('${v.placa}')" style="cursor:pointer;"`;
   return `<div class="vc ${baseCls}${isRepo?' repo-entry':''}" ${isP0 ? clickAttr : ''}>
@@ -1926,7 +1923,7 @@ function renderVCRepoCard(r, priority) {
   const pct = Math.min(100, Math.max(0, ((bat-10.5)/4)*100));
   const c = bat < 12 ? 'var(--red)' : bat < 12.4 ? 'var(--amber)' : '#64748b';
   const baseCls = priority ? priority.cls : 'repo-entry';
-  const isP0 = S.sheetsData?.p0Plates?.has(r.placa);
+  const isP0 = S.sheetsData?.p0Plates?.has(cleanPlate(r.placa));
   const saleChips = isP0 ? buildSaleChips(r.placa) : '';
   const clickAttr = isP0 ? `onclick="openSaleModal('${r.placa}')" style="cursor:pointer;"` : '';
   return `<div class="vc ${baseCls} repo-entry" ${clickAttr}>
@@ -1948,11 +1945,11 @@ function renderVCRepoCard(r, priority) {
 
 // ════════ SALE CHIPS + MODAL ════════
 function buildSaleChips(placa) {
-  const info = S.sheetsData?.p0Info?.[placa];
+  const cp = cleanPlate(placa);
+  const info = S.sheetsData?.p0Info?.[cp];
   if (!info) return '';
   const both = info.presencial && info.locacao;
   
-  // Limpa o nome para tirar o "Base v2 - " e deixar a leitura mais limpa
   const lp = (info.labelPresencial || 'CX Presencial').replace(/Base v2 - /i, '').trim();
   const ll = (info.labelLocacao || 'CX 1 Locação').replace(/Base v2 - /i, '').trim();
 
@@ -1963,37 +1960,33 @@ function buildSaleChips(placa) {
 }
 
 function openSaleModal(placa) {
+  const cp = cleanPlate(placa);
   const sh = S.sheetsData;
-  const info = sh?.p0Info?.[placa] || {};
+  const info = sh?.p0Info?.[cp] || {};
   const both = info.presencial && info.locacao;
-  const batV = S.asb.find(v => v.placa === placa)?.bateria || info.bat_atual;
+  const batV = S.asb.find(v => cleanPlate(v.placa) === cp)?.bateria || info.bat_atual;
   const bat = parseFloat(batV) || 0;
-  const loc = S.asb.find(v => v.placa === placa)?.local || info.loc || sh?.locations?.[placa] || '—';
-  const modelo = S.asb.find(v => v.placa === placa)?.modelo || info.modelo || '—';
+  const loc = S.asb.find(v => cleanPlate(v.placa) === cp)?.local || info.loc || sh?.locations?.[cp] || '—';
+  const modelo = S.asb.find(v => cleanPlate(v.placa) === cp)?.modelo || info.modelo || '—';
   const batC = bat < 12 ? 'red' : bat < 12.4 ? 'amber' : 'green';
   const batLabel = bat < 12 ? '⚠ CRÍTICA' : bat < 12.4 ? 'ATENÇÃO' : 'OK';
 
   document.getElementById('sm-plate').textContent = placa;
   document.getElementById('sm-sub').textContent = modelo + ' · ' + loc;
 
-  // Header badges
   let badges = '';
   if (both) badges += `<span class="sale-chip both">🔄 AMBOS OS CANAIS</span>`;
   else if (info.presencial) badges += `<span class="sale-chip presencial">🔴 ${info.labelPresencial||'CX Presencial'}</span>`;
   else if (info.locacao) badges += `<span class="sale-chip locacao">🟣 ${info.labelLocacao||'CX 1 Locação'}</span>`;
   document.getElementById('sm-badges').innerHTML = badges;
 
-  // Body
   let body = '';
-
-  // Alert block
   body += `<div class="sm-alert urgent">
     🚨 <b>AÇÃO OBRIGATÓRIA:</b> Este veículo está confirmado em processo de venda.
     A bateria precisa ser trocada ANTES da entrega ao driver.
     ${bat < 12 ? `<br/>⚡ Tensão atual CRÍTICA (${bat.toFixed(2)}V) — troca imediata necessária.` : ''}
   </div>`;
 
-  // Vehicle info
   body += `<div class="sm-section">
     <div class="sm-section-title">Dados do Veículo</div>
     <div class="sm-row"><span class="sm-lbl">Placa</span><span class="sm-val">${placa}</span></div>
@@ -2003,7 +1996,6 @@ function openSaleModal(placa) {
     <div class="sm-row"><span class="sm-lbl">Estado bateria</span><span class="sm-val amber">BATERIA CRITICA-TROCAR</span></div>
   </div>`;
 
-  // Sale channel info
   body += `<div class="sm-section">
     <div class="sm-section-title">Canal de Venda (planilha Controle Baterias ASB)</div>`;
 
@@ -2035,7 +2027,6 @@ function openSaleModal(placa) {
   }
   body += `</div>`;
 
-  // Action checklist
   body += `<div class="sm-section">
     <div class="sm-section-title">Checklist — Antes da Entrega</div>
     <div class="sm-row highlight"><span class="sm-lbl">1. Trocar bateria</span><span class="sm-val red">PENDENTE</span></div>
