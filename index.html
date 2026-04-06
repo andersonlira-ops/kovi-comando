@@ -1620,89 +1620,96 @@ function parseCSVLine(line, sep) {
 }
 
 function parseSheetsData(csv) {
-  // Detect separator
   const firstLine = csv.split('\n')[0];
   const sep = firstLine.includes('\t') ? '\t' : firstLine.includes(';') ? ';' : ',';
-
   const rawLines = csv.split(/\r?\n/);
   const lines = rawLines.filter(l => l.trim());
   const p1Plates = new Set();
   const p0Plates = new Set();
   const locations = {};
-  // p0Info: per-plate object with which sale column(s) it appears in
-  // { [plate]: { presencial: bool, locacao: bool, modelo:'', loc:'', estado:'' } }
   const p0Info = {};
 
-  // Find header row — look for 'prioridade' or 'placa' or 'estado'
-  let headerIdx = -1;
-  for (let i = 0; i < Math.min(5, lines.length); i++) {
-    const low = lines[i].toLowerCase();
-    if (low.includes('prioridade') || low.includes('estado_bateria') || (low.includes('placa') && low.includes('modelo'))) {
-      headerIdx = i;
-      break;
-    }
-  }
-  const dataStart = headerIdx >= 0 ? headerIdx + 1 : (lines.length > 2 ? 2 : 1);
-
-  // Auto-detect column indices from header
-  let colPlaca = 2, colModelo = 3, colEstado = 1, colLoc = 6, colP0A = 8, colP0B = 9;
+  let colPlaca = 2, colModelo = 3, colEstado = 1, colLoc = 6, colPrio = 0;
+  let colP0A = -1, colP0B = -1;
   let labelP0A = 'CX Presencial', labelP0B = 'CX 1 Locação';
-  if (headerIdx >= 0) {
-    const hdr = parseCSVLine(lines[headerIdx], sep).map(h => h.toLowerCase().trim());
-    const findCol = (...terms) => { for (const t of terms) { const i = hdr.findIndex(h => h.includes(t)); if (i >= 0) return i; } return -1; };
-    const cp = findCol('placa'); if (cp >= 0) colPlaca = cp;
+
+  // Varrer as primeiras 5 linhas para caçar as colunas corretas (mesmo que a coluna H suma)
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const hdr = parseCSVLine(lines[i], sep).map(h => h.toLowerCase().trim());
+    const findCol = (...terms) => { for (const t of terms) { const idx = hdr.findIndex(h => h.includes(t)); if (idx >= 0) return idx; } return -1; };
+    
+    const cp = findCol('placa'); if (cp >= 0 && colPlaca === 2) colPlaca = cp;
     const cm = findCol('modelo'); if (cm >= 0) colModelo = cm;
-    const ce = findCol('estado_bat','estado'); if (ce >= 0) colEstado = ce;
-    const cl = findCol('ultima_localizacao','localizacao','local'); if (cl >= 0) colLoc = cl;
-    const ci = hdr.findIndex(h => h.includes('presencial'));
+    const ce = findCol('estado_bat', 'estado'); if (ce >= 0) colEstado = ce;
+    const cl = findCol('ultima_localizacao', 'localizacao', 'local'); if (cl >= 0) colLoc = cl;
+    const cPrio = findCol('prioridade'); if (cPrio >= 0) colPrio = cPrio;
+
+    // Acha a coluna de vendas mesmo se estiver na Linha 1
+    const ci = findCol('presencial');
+    if (ci >= 0) { colP0A = ci; labelP0A = parseCSVLine(lines[i], sep)[ci]?.trim() || labelP0A; }
+    
     const cj = hdr.findIndex(h => (h.includes('loca') || h.includes('locação')) && h !== hdr[ci]);
-    if (ci >= 0) { colP0A = ci; labelP0A = lines[headerIdx].split(sep)[ci]?.trim() || 'CX Presencial'; }
-    if (cj >= 0 && cj !== ci) { colP0B = cj; labelP0B = lines[headerIdx].split(sep)[cj]?.trim() || 'CX 1 Locação'; }
+    if (cj >= 0 && cj !== ci) { colP0B = cj; labelP0B = parseCSVLine(lines[i], sep)[cj]?.trim() || labelP0B; }
   }
 
-  let parsedCount = 0;
-  for (let i = dataStart; i < lines.length; i++) {
+  // Chutes seguros se as colunas ficarem invisíveis
+  if (colP0A === -1) colP0A = 7; 
+  if (colP0B === -1) colP0B = 8; 
+
+  for (let i = 1; i < lines.length; i++) {
     const raw = parseCSVLine(lines[i], sep);
     if (raw.length < 3) continue;
 
-    // Col C = P1 plate (main battery critical list)
-    const pC = (raw[colPlaca]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if (pC.length >= 7) {
-      p1Plates.add(pC);
-      const loc = (raw[colLoc]||'').trim();
-      const modelo = (raw[colModelo]||'').trim();
-      const estado = (raw[colEstado]||'').trim();
-      if (loc) locations[pC] = loc;
-      parsedCount++;
-    }
+    const pC = cleanPlate(raw[colPlaca]);
+    const prioVal = (raw[colPrio]||'').toUpperCase().trim();
+    const loc = (raw[colLoc]||'').trim();
+    const modelo = (raw[colModelo]||'').trim();
+    const estado = (raw[colEstado]||'').trim();
 
-    // Col I = P0 CX Presencial
-    const pI = (raw[colP0A]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if (pI.length >= 7) {
-      p0Plates.add(pI);
-      if (!p0Info[pI]) p0Info[pI] = { presencial: false, locacao: false, labelPresencial: labelP0A, labelLocacao: labelP0B };
-      p0Info[pI].presencial = true;
-      // Try to get metadata from P1 row that matches this plate
-      if (!p0Info[pI].modelo) {
-        const p1row = [...Array(lines.length - dataStart)].map((_,k)=>parseCSVLine(lines[dataStart+k],sep)).find(r => (r[colPlaca]||'').toUpperCase().replace(/[^A-Z0-9]/g,'') === pI);
-        if (p1row) { p0Info[pI].modelo = p1row[colModelo]||''; p0Info[pI].loc = p1row[colLoc]||''; p0Info[pI].estado = p1row[colEstado]||''; }
+    if (pC.length >= 7) {
+      if (loc) locations[pC] = loc;
+      
+      // MÁGICA 1: O sistema agora confia cegamente na Coluna A. Se for P0, joga pro topo!
+      if (prioVal === 'P0' || prioVal.includes('P0')) {
+        p0Plates.add(pC);
+        if (!p0Info[pC]) p0Info[pC] = { presencial: false, locacao: false, labelPresencial: labelP0A, labelLocacao: labelP0B };
+        p0Info[pC].presencial = true;
+        p0Info[pC].modelo = modelo; p0Info[pC].loc = loc; p0Info[pC].estado = estado;
+      } else {
+        p1Plates.add(pC);
       }
     }
 
-    // Col J = P0 CX 1 locação
-    const pJ = (raw[colP0B]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if (pJ.length >= 7) {
-      p0Plates.add(pJ);
-      if (!p0Info[pJ]) p0Info[pJ] = { presencial: false, locacao: false, labelPresencial: labelP0A, labelLocacao: labelP0B };
-      p0Info[pJ].locacao = true;
-      if (!p0Info[pJ].modelo) {
-        const p1row = [...Array(lines.length - dataStart)].map((_,k)=>parseCSVLine(lines[dataStart+k],sep)).find(r => (r[colPlaca]||'').toUpperCase().replace(/[^A-Z0-9]/g,'') === pJ);
-        if (p1row) { p0Info[pJ].modelo = p1row[colModelo]||''; p0Info[pJ].loc = p1row[colLoc]||''; p0Info[pJ].estado = p1row[colEstado]||''; }
+    // MÁGICA 2: Continua lendo as colunas I e J por segurança
+    if (colP0A >= 0 && colP0A < raw.length) {
+      const pI = cleanPlate(raw[colP0A]);
+      if (pI.length >= 7) {
+        p0Plates.add(pI);
+        if (!p0Info[pI]) p0Info[pI] = { presencial: false, locacao: false, labelPresencial: labelP0A, labelLocacao: labelP0B };
+        p0Info[pI].presencial = true;
+      }
+    }
+    if (colP0B >= 0 && colP0B < raw.length) {
+      const pJ = cleanPlate(raw[colP0B]);
+      if (pJ.length >= 7) {
+        p0Plates.add(pJ);
+        if (!p0Info[pJ]) p0Info[pJ] = { presencial: false, locacao: false, labelPresencial: labelP0A, labelLocacao: labelP0B };
+        p0Info[pJ].locacao = true;
       }
     }
   }
 
-  console.log(`[Sheets] Parsed ${parsedCount} P1, ${p0Plates.size} P0 from ${lines.length - dataStart} rows`);
+  // Preenche dados perdidos
+  for (let i = 1; i < lines.length; i++) {
+    const raw = parseCSVLine(lines[i], sep);
+    const pC = cleanPlate(raw[colPlaca]);
+    if (pC && p0Info[pC]) {
+      p0Info[pC].modelo = p0Info[pC].modelo || raw[colModelo];
+      p0Info[pC].loc = p0Info[pC].loc || raw[colLoc];
+      p0Info[pC].estado = p0Info[pC].estado || raw[colEstado];
+    }
+  }
+
   return { p1Plates, p0Plates, locations, p0Info, labelP0A, labelP0B };
 }
 
