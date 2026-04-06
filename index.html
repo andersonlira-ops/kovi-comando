@@ -1732,7 +1732,14 @@ async function syncAll() {
   await Promise.allSettled(ps);
   notify('✓ Sincronização concluída','ok');
 }
-
+// ════════ UTILS ════════
+function setDot(n, s) {
+  const ids=[[null,'sd1','st1'],[1,'sd1','st1'],[2,'sd2','st2']];
+  if(n===0){document.getElementById('sd1').className='sdot'+(s==='ok'?' live':s==='err'?' err':'');return;}
+  const d=document.getElementById(ids[n][1]);
+  d.className='sdot'+(s==='ok'?' live':s==='err'?' err':'');
+}
+function setSt(id, t, msg) { const e=document.getElementById(id); if(e){e.textContent=msg;e.className='cfst '+t;} }
 window.addEventListener('load', () => {
   loadCfg();
   renderDashChart();
