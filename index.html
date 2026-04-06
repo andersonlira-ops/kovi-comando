@@ -492,6 +492,9 @@ table.dt tr:hover td{background:var(--s3);}
       </div>
       <button class="cfbtn a" style="height:34px; padding: 0 16px; background:var(--amber); color:#000; font-weight:700;" onclick="buscarTelemetria()">🔍 Buscar Dados</button>
     </div>
+    <div class="chwrap" style="height: 250px; margin-bottom: 20px; display: none;" id="tel-chart-container">
+      <canvas id="tel-canvas"></canvas>
+    </div>
     <div class="twrap">
       <table class="dt">
         <thead>
@@ -1592,13 +1595,16 @@ function openVehicleModal(placa) {
         <div class="sm-row"><span class="sm-lbl">2. Confirmar tensão &gt; 12.4V após troca</span><span class="sm-val amber">verificar</span></div>
       </div>`;
   } else {
-      body += `<div class="sm-section">
-        <div class="sm-section-title">Histórico de Diagnóstico Automotivo</div>
-        <div class="sm-row"><span class="sm-lbl">Buscar cruzamento com Metabase</span><span class="sm-val" style="cursor:pointer; color:var(--blue);" onclick="closeSaleModal(); pg('fleet'); document.getElementById('fsrch').value='${placa}'; renderFleet();">Ver no Roteamento ↗</span></div>
-      </div>`;
-  }
-  document.getElementById('sm-body').innerHTML = body;
-  document.getElementById('sale-modal').classList.add('open');
+        body += `<div class="sm-section">
+          <div class="sm-section-title">Análise de Telemetria</div>
+          <div class="sm-row">
+            <span class="sm-lbl">Investigar histórico de eventos e bateria</span>
+            <span class="sm-val" style="cursor:pointer; color:var(--amber);" onclick="closeSaleModal(); pg('tel'); document.getElementById('tel-placa').value='${placa}';">Ver Telemetria ↗</span>
+          </div>
+        </div>`;
+    }
+    document.getElementById('sm-body').innerHTML = body;
+    document.getElementById('sale-modal').classList.add('open');
 }
 
 function closeSaleModal() { document.getElementById('sale-modal').classList.remove('open'); }
@@ -1754,12 +1760,13 @@ async function buscarTelemetria() {
   const startInput = document.getElementById('tel-start');
   const endInput = document.getElementById('tel-end');
   const tbody = document.getElementById('tel-tbody');
+  const chartContainer = document.getElementById('tel-chart-container');
 
   if (!placaInput || !startInput || !endInput || !tbody) return;
 
   const placa = placaInput.value.toUpperCase().trim();
-  const start = startInput.value;
-  const end = endInput.value;
+  const start = startInput.value.replace('T', ' ');
+  const end = endInput.value.replace('T', ' ');
 
   if(!placa || !start || !end) {
     notify('Preencha placa, data inicial e data final', 'warn');
@@ -1774,6 +1781,7 @@ async function buscarTelemetria() {
   }
 
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><div class="spin" style="margin: 10px auto;"></div>Buscando dados...</td></tr>';
+  chartContainer.style.display = 'none'; // Esconde o gráfico enquanto busca
 
   try {
     const fetchUrl = `${scriptUrl}?placa=${encodeURIComponent(placa)}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
@@ -1790,10 +1798,19 @@ async function buscarTelemetria() {
       return;
     }
     
+    // Arrays para montar o gráfico
+    const chartDataPoints = [];
+
     tbody.innerHTML = data.map(row => {
       const stringTensao = String(row['Tensão Bateria:'] || '0').replace(',', '.');
       const tensaoNumero = parseFloat(stringTensao);
       const isLowBattery = tensaoNumero > 0 && tensaoNumero < 12;
+
+      // Pega os dados válidos para o gráfico
+      if (row['Hora do evento'] && tensaoNumero > 0) {
+        // Usa o formato nativo de data do JS adaptado para o Chart.js
+        chartDataPoints.push({ x: new Date(row['Hora do evento']), y: tensaoNumero });
+      }
 
       return `
         <tr>
@@ -1807,7 +1824,53 @@ async function buscarTelemetria() {
       `;
     }).join('');
     
-    notify(`✓ ${data.length} eventos carregados`, 'ok');
+    // Mostra a div do gráfico e desenha
+    chartContainer.style.display = 'block';
+    
+    // Ordena os pontos por data (do mais antigo pro mais novo)
+    chartDataPoints.sort((a, b) => a.x - b.x);
+
+    // Destrói o gráfico anterior se existir
+    if (S.charts.tel) S.charts.tel.destroy();
+    
+    const ctx = document.getElementById('tel-canvas').getContext('2d');
+    S.charts.tel = new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [{
+          label: `Tensão (V) - ${placa}`,
+          data: chartDataPoints,
+          borderColor: '#f0a000', // Laranja/Amarelo Kovi
+          backgroundColor: 'rgba(240, 160, 0, 0.1)',
+          borderWidth: 2,
+          pointRadius: 2,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.3 // Curva suave
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { 
+            type: 'time', 
+            grid: { display: false }, 
+            ticks: { color: '#7f8ea8', font: { family: 'JetBrains Mono', size: 9 } } 
+          },
+          y: { 
+            min: 0, 
+            max: 16, 
+            grid: { color: '#1e2435' }, 
+            ticks: { color: '#7f8ea8', font: { family: 'JetBrains Mono', size: 9 } } 
+          }
+        }
+      }
+    });
+
+    notify(`✓ ${data.length} eventos e gráfico carregados`, 'ok');
     
   } catch(e) {
     console.error("Erro no fetch da telemetria:", e);
