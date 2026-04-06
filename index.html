@@ -1713,6 +1713,46 @@ function loadCachedSheets() {
   } catch(e) {}
 }
 
+// ════════ CONFIG ════════
+function savAPI() {
+  const v=document.getElementById('capi').value.trim();
+  if (!v) {setSt('apit','err','⚠ Digite a chave');return;}
+  if (!v.startsWith('sk-ant-')) {setSt('apit','err','⚠ Deve começar com sk-ant-');return;}
+  localStorage.setItem('k_api',v); document.getElementById('capi').value='●'.repeat(16);
+  setSt('apit','ok','✓ Salva');
+}
+function clrAPI() { localStorage.removeItem('k_api'); document.getElementById('capi').value=''; setSt('apit','ok','✓ Removida'); }
+function savSB() {
+  const url=document.getElementById('csburl').value.trim();
+  const key=document.getElementById('csbkey').value.trim();
+  if (!url||!key) {setSt('sbt','err','⚠ URL e chave obrigatórios');return;}
+  localStorage.setItem('k_sburl',url); localStorage.setItem('k_sbkey',key);
+  setSt('sbt','ok','✓ Salvo');
+}
+async function tstSB() {
+  const url=S.sbUrl(),key=S.sbKey();
+  if (!url||!key){setSt('sbt','err','⚠ Configure primeiro');return;}
+  setSt('sbt','info','◌ Testando...');
+  try {
+    const r=await fetch(url.replace(/\/$/,'')+'/rest/v1/kovi_historico?limit=1',{headers:{apikey:key,Authorization:'Bearer '+key}});
+    if (r.ok||r.status===406||r.status===416) { setDot(0,'ok'); setSt('sbt','ok','✓ Conectado!'); }
+    else throw new Error('HTTP '+r.status);
+  } catch(e) { setDot(0,'err'); setSt('sbt','err','⚠ '+e.message); }
+}
+function savASB() { const v=document.getElementById('casb').value.trim(); if(!v)return; localStorage.setItem('k_asburl',v); setSt('asbt','ok','✓ URL salva'); }
+function savMB() { const v=document.getElementById('cmb').value.trim(); if(!v)return; localStorage.setItem('k_mburl',v); setSt('mbt','ok','✓ URL salva'); }
+
+// ════════ UTILS ════════
+function setDot(n, s) {
+  const ids=[[null,'sd1','st1'],[1,'sd1','st1'],[2,'sd2','st2']];
+  if(n===0){document.getElementById('sd1').className='sdot'+(s==='ok'?' live':s==='err'?' err':'');return;}
+  const d=document.getElementById(ids[n][1]);
+  d.className='sdot'+(s==='ok'?' live':s==='err'?' err':'');
+}
+function setSt(id, t, msg) { const e=document.getElementById(id); if(e){e.textContent=msg;e.className='cfst '+t;} }
+
+
+// ════════ BOOT & SYNC ════════
 function loadCfg() {
   const a=S.asbUrl(); if(a){document.getElementById('casb').value=a;}
   const m=S.mbUrl(); if(m){document.getElementById('cmb').value=m;}
@@ -1732,14 +1772,7 @@ async function syncAll() {
   await Promise.allSettled(ps);
   notify('✓ Sincronização concluída','ok');
 }
-// ════════ UTILS ════════
-function setDot(n, s) {
-  const ids=[[null,'sd1','st1'],[1,'sd1','st1'],[2,'sd2','st2']];
-  if(n===0){document.getElementById('sd1').className='sdot'+(s==='ok'?' live':s==='err'?' err':'');return;}
-  const d=document.getElementById(ids[n][1]);
-  d.className='sdot'+(s==='ok'?' live':s==='err'?' err':'');
-}
-function setSt(id, t, msg) { const e=document.getElementById(id); if(e){e.textContent=msg;e.className='cfst '+t;} }
+
 window.addEventListener('load', () => {
   loadCfg();
   renderDashChart();
