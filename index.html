@@ -271,6 +271,46 @@ table.dt tr:hover td{background:var(--s3);}
 .prio-badge.repo{background:rgba(55,69,96,.4);color:var(--text2);border:1px solid var(--border2);}
 .repo-cleared{font-size:8px;color:var(--text3);text-align:right;cursor:pointer;padding:2px 6px;border:1px solid var(--border);border-radius:3px;background:transparent;margin-top:5px;}
 .repo-cleared:hover{color:var(--red);border-color:var(--red);}
+
+/* ── SALE TYPE MINI-BADGE on card ── */
+.sale-type-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.sale-chip{display:inline-flex;align-items:center;gap:4px;font-size:8px;font-weight:700;letter-spacing:.5px;padding:3px 7px;border-radius:3px;cursor:pointer;}
+.sale-chip.presencial{background:rgba(255,23,68,.12);color:var(--red);border:1px solid rgba(255,23,68,.35);}
+.sale-chip.locacao{background:rgba(179,136,255,.12);color:var(--purple);border:1px solid rgba(179,136,255,.35);}
+.sale-chip.both{background:rgba(255,109,0,.12);color:var(--orange);border:1px solid rgba(255,109,0,.35);}
+
+/* ── SALE DETAIL MODAL ── */
+#sale-modal{display:none;position:fixed;inset:0;z-index:8500;background:rgba(0,0,0,.85);align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+#sale-modal.open{display:flex;}
+.sm-box{background:var(--s1);border:1px solid var(--border3);border-radius:14px;width:560px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.sm-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.sm-plate{font-family:var(--mono);font-size:22px;font-weight:700;}
+.sm-close{width:30px;height:30px;border-radius:50%;background:var(--s3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px;flex-shrink:0;transition:all .15s;margin-left:auto;}
+.sm-close:hover{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.sm-body{flex:1;overflow-y:auto;padding:18px 20px;}
+.sm-section{margin-bottom:16px;}
+.sm-section-title{font-size:8px;text-transform:uppercase;letter-spacing:2.5px;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.sm-section-title::before{content:'';width:2px;height:9px;background:var(--amber);border-radius:1px;flex-shrink:0;}
+.sm-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--s3);border-radius:5px;margin-bottom:5px;border-left:2px solid var(--border2);}
+.sm-row.highlight{border-left-color:var(--red);}
+.sm-row.highlight2{border-left-color:var(--purple);}
+.sm-row.highlight3{border-left-color:var(--orange);}
+.sm-lbl{font-size:9px;color:var(--text2);}
+.sm-val{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text);}
+.sm-val.red{color:var(--red);}
+.sm-val.purple{color:var(--purple);}
+.sm-val.amber{color:var(--amber);}
+.sm-val.green{color:var(--green);}
+.sm-sale-block{background:var(--bg);border:1px solid;border-radius:8px;padding:12px;margin-bottom:8px;}
+.sm-sale-block.presencial{border-color:rgba(255,23,68,.35);}
+.sm-sale-block.locacao{border-color:rgba(179,136,255,.35);}
+.sm-sale-title{font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:4px;}
+.sm-sale-title.presencial{color:var(--red);}
+.sm-sale-title.locacao{color:var(--purple);}
+.sm-sale-desc{font-size:9px;color:var(--text2);line-height:1.7;}
+.sm-alert{padding:10px 12px;border-radius:6px;font-size:10px;line-height:1.6;margin-bottom:10px;}
+.sm-alert.urgent{background:rgba(255,23,68,.08);border:1px solid rgba(255,23,68,.3);color:var(--red);}
+.sm-alert.warn{background:rgba(240,160,0,.08);border:1px solid rgba(240,160,0,.3);color:var(--amber);}
 /* Repo section banners */
 .repo-banner{border-radius:10px;padding:13px 14px;margin-bottom:16px;}
 .repo-banner.p0-banner{background:rgba(255,23,68,.06);border:1px solid rgba(255,23,68,.3);}
@@ -300,6 +340,21 @@ table.dt tr:hover td{background:var(--s3);}
       <button class="hm-close" onclick="closeHistModal()">✕</button>
     </div>
     <div class="hm-body" id="hm-body"></div>
+  </div>
+</div>
+
+<!-- SALE DETAIL MODAL -->
+<div id="sale-modal">
+  <div class="sm-box">
+    <div class="sm-head">
+      <div>
+        <div class="sm-plate" id="sm-plate">—</div>
+        <div style="font-size:9px;color:var(--text2);margin-top:2px;" id="sm-sub">—</div>
+      </div>
+      <div id="sm-badges" style="display:flex;gap:6px;align-items:center;flex:1;margin-left:10px;"></div>
+      <button class="sm-close" onclick="closeSaleModal()">✕</button>
+    </div>
+    <div class="sm-body" id="sm-body"></div>
   </div>
 </div>
 
@@ -1574,6 +1629,9 @@ function parseSheetsData(csv) {
   const p1Plates = new Set();
   const p0Plates = new Set();
   const locations = {};
+  // p0Info: per-plate object with which sale column(s) it appears in
+  // { [plate]: { presencial: bool, locacao: bool, modelo:'', loc:'', estado:'' } }
+  const p0Info = {};
 
   // Find header row — look for 'prioridade' or 'placa' or 'estado'
   let headerIdx = -1;
@@ -1586,19 +1644,20 @@ function parseSheetsData(csv) {
   }
   const dataStart = headerIdx >= 0 ? headerIdx + 1 : (lines.length > 2 ? 2 : 1);
 
-  // Try to auto-detect column indices from header
-  let colPlaca = 2, colLoc = 6, colP0A = 8, colP0B = 9;
+  // Auto-detect column indices from header
+  let colPlaca = 2, colModelo = 3, colEstado = 1, colLoc = 6, colP0A = 8, colP0B = 9;
+  let labelP0A = 'CX Presencial', labelP0B = 'CX 1 Locação';
   if (headerIdx >= 0) {
     const hdr = parseCSVLine(lines[headerIdx], sep).map(h => h.toLowerCase().trim());
     const findCol = (...terms) => { for (const t of terms) { const i = hdr.findIndex(h => h.includes(t)); if (i >= 0) return i; } return -1; };
     const cp = findCol('placa'); if (cp >= 0) colPlaca = cp;
+    const cm = findCol('modelo'); if (cm >= 0) colModelo = cm;
+    const ce = findCol('estado_bat','estado'); if (ce >= 0) colEstado = ce;
     const cl = findCol('ultima_localizacao','localizacao','local'); if (cl >= 0) colLoc = cl;
-    // P0 columns — look for "cx presencial" or "cx 1 locação" in headers
-    // The sheet has them in col I (idx 8) and J (idx 9) — keep defaults unless we find them
     const ci = hdr.findIndex(h => h.includes('presencial'));
-    const cj = hdr.findIndex(h => h.includes('loca') && h !== hdr[ci]);
-    if (ci >= 0) colP0A = ci;
-    if (cj >= 0 && cj !== ci) colP0B = cj;
+    const cj = hdr.findIndex(h => (h.includes('loca') || h.includes('locação')) && h !== hdr[ci]);
+    if (ci >= 0) { colP0A = ci; labelP0A = lines[headerIdx].split(sep)[ci]?.trim() || 'CX Presencial'; }
+    if (cj >= 0 && cj !== ci) { colP0B = cj; labelP0B = lines[headerIdx].split(sep)[cj]?.trim() || 'CX 1 Locação'; }
   }
 
   let parsedCount = 0;
@@ -1606,26 +1665,45 @@ function parseSheetsData(csv) {
     const raw = parseCSVLine(lines[i], sep);
     if (raw.length < 3) continue;
 
-    // Col C (or detected) = P1 plate
+    // Col C = P1 plate (main battery critical list)
     const pC = (raw[colPlaca]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
     if (pC.length >= 7) {
       p1Plates.add(pC);
       const loc = (raw[colLoc]||'').trim();
+      const modelo = (raw[colModelo]||'').trim();
+      const estado = (raw[colEstado]||'').trim();
       if (loc) locations[pC] = loc;
       parsedCount++;
     }
 
     // Col I = P0 CX Presencial
     const pI = (raw[colP0A]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if (pI.length >= 7) p0Plates.add(pI);
+    if (pI.length >= 7) {
+      p0Plates.add(pI);
+      if (!p0Info[pI]) p0Info[pI] = { presencial: false, locacao: false, labelPresencial: labelP0A, labelLocacao: labelP0B };
+      p0Info[pI].presencial = true;
+      // Try to get metadata from P1 row that matches this plate
+      if (!p0Info[pI].modelo) {
+        const p1row = [...Array(lines.length - dataStart)].map((_,k)=>parseCSVLine(lines[dataStart+k],sep)).find(r => (r[colPlaca]||'').toUpperCase().replace(/[^A-Z0-9]/g,'') === pI);
+        if (p1row) { p0Info[pI].modelo = p1row[colModelo]||''; p0Info[pI].loc = p1row[colLoc]||''; p0Info[pI].estado = p1row[colEstado]||''; }
+      }
+    }
 
     // Col J = P0 CX 1 locação
     const pJ = (raw[colP0B]||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if (pJ.length >= 7) p0Plates.add(pJ);
+    if (pJ.length >= 7) {
+      p0Plates.add(pJ);
+      if (!p0Info[pJ]) p0Info[pJ] = { presencial: false, locacao: false, labelPresencial: labelP0A, labelLocacao: labelP0B };
+      p0Info[pJ].locacao = true;
+      if (!p0Info[pJ].modelo) {
+        const p1row = [...Array(lines.length - dataStart)].map((_,k)=>parseCSVLine(lines[dataStart+k],sep)).find(r => (r[colPlaca]||'').toUpperCase().replace(/[^A-Z0-9]/g,'') === pJ);
+        if (p1row) { p0Info[pJ].modelo = p1row[colModelo]||''; p0Info[pJ].loc = p1row[colLoc]||''; p0Info[pJ].estado = p1row[colEstado]||''; }
+      }
+    }
   }
 
   console.log(`[Sheets] Parsed ${parsedCount} P1, ${p0Plates.size} P0 from ${lines.length - dataStart} rows`);
-  return { p1Plates, p0Plates, locations };
+  return { p1Plates, p0Plates, locations, p0Info, labelP0A, labelP0B };
 }
 
 async function fetchCSV(url) {
@@ -1673,6 +1751,9 @@ async function loadSheetsData() {
       p1Plates: [...S.sheetsData.p1Plates],
       p0Plates: [...S.sheetsData.p0Plates],
       locations: S.sheetsData.locations,
+      p0Info: S.sheetsData.p0Info,
+      labelP0A: S.sheetsData.labelP0A,
+      labelP0B: S.sheetsData.labelP0B,
       loaded: new Date().toISOString()
     }));
 
@@ -1697,6 +1778,9 @@ function loadCachedSheets() {
       p1Plates: new Set(d.p1Plates||[]),
       p0Plates: new Set(d.p0Plates||[]),
       locations: d.locations||{},
+      p0Info: d.p0Info||{},
+      labelP0A: d.labelP0A||'CX Presencial',
+      labelP0B: d.labelP0B||'CX 1 Locação',
     };
     if (d.loaded) {
       const when = new Date(d.loaded).toLocaleString('pt-BR');
@@ -1819,7 +1903,10 @@ function renderVCPrio(v, priority) {
   const c = bat < 12 ? 'var(--red)' : bat < 12.4 ? 'var(--amber)' : 'var(--green)';
   const baseCls = v.vendido ? 'sold' : priority ? priority.cls : (bat < 12 ? 'crit' : 'ok');
   const isRepo = v._src === 'repo';
-  return `<div class="vc ${baseCls}${isRepo?' repo-entry':''}">
+  const isP0 = S.sheetsData?.p0Plates?.has(v.placa);
+  const saleChips = isP0 ? buildSaleChips(v.placa) : '';
+  const clickAttr = `onclick="openSaleModal('${v.placa}')" style="cursor:pointer;"`;
+  return `<div class="vc ${baseCls}${isRepo?' repo-entry':''}" ${isP0 ? clickAttr : ''}>
     ${v.vendido ? '<span class="vcbdg sold">VENDIDO</span>' : bat<12 && !priority ? '<span class="vcbdg urg">⚠ CRÍTICA</span>' : ''}
     ${priority ? `<span class="prio-badge ${priority.cls}">${priority.label}</span>` : ''}
     <div class="vc-pl">${v.placa}</div>
@@ -1829,6 +1916,8 @@ function renderVCPrio(v, priority) {
       <div class="bbar"><div class="bbf" style="width:${pct}%;background:${c};"></div></div>
     </div>
     <div class="vc-loc">${v.local||'—'}</div>
+    ${saleChips ? `<div class="sale-type-row">${saleChips}</div>` : ''}
+    ${isP0 ? '<div style="font-size:7px;color:var(--text3);margin-top:4px;text-align:right;">clique para detalhes da venda →</div>' : ''}
   </div>`;
 }
 
@@ -1837,7 +1926,10 @@ function renderVCRepoCard(r, priority) {
   const pct = Math.min(100, Math.max(0, ((bat-10.5)/4)*100));
   const c = bat < 12 ? 'var(--red)' : bat < 12.4 ? 'var(--amber)' : '#64748b';
   const baseCls = priority ? priority.cls : 'repo-entry';
-  return `<div class="vc ${baseCls} repo-entry">
+  const isP0 = S.sheetsData?.p0Plates?.has(r.placa);
+  const saleChips = isP0 ? buildSaleChips(r.placa) : '';
+  const clickAttr = isP0 ? `onclick="openSaleModal('${r.placa}')" style="cursor:pointer;"` : '';
+  return `<div class="vc ${baseCls} repo-entry" ${clickAttr}>
     ${priority ? `<span class="prio-badge ${priority.cls}">${priority.label}</span>` : `<span class="prio-badge repo">🗄 AGUARDANDO TROCA — bateria foi carregada mas substituição pendente</span>`}
     <div class="vc-pl" style="${!priority?'color:var(--text2)':''}">${r.placa}</div>
     <div class="vc-mod">${r.modelo||'—'}</div>
@@ -1847,11 +1939,115 @@ function renderVCRepoCard(r, priority) {
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div class="vc-loc">${r.local_atual||'—'}</div>
-      <button class="repo-cleared" onclick="clearRepoEntry('${r.placa}')">✓ Troca realizada</button>
+      <button class="repo-cleared" onclick="event.stopPropagation();clearRepoEntry('${r.placa}')">✓ Troca realizada</button>
     </div>
-    <div style="font-size:7px;color:var(--text3);margin-top:3px;">Desde ${r.data_entrada||'—'}</div>
+    ${saleChips ? `<div class="sale-type-row">${saleChips}</div>` : ''}
+    <div style="font-size:7px;color:var(--text3);margin-top:3px;">Desde ${r.data_entrada||'—'}${isP0?' · clique para detalhes':''}</div>
   </div>`;
 }
+
+// ════════ SALE CHIPS + MODAL ════════
+function buildSaleChips(placa) {
+  const info = S.sheetsData?.p0Info?.[placa];
+  if (!info) return '';
+  const both = info.presencial && info.locacao;
+  if (both) return `<span class="sale-chip both" onclick="event.stopPropagation();openSaleModal('${placa}')">🔄 AMBOS · ${info.labelPresencial} + ${info.labelLocacao}</span>`;
+  if (info.presencial) return `<span class="sale-chip presencial" onclick="event.stopPropagation();openSaleModal('${placa}')">🔴 ${info.labelPresencial}</span>`;
+  if (info.locacao) return `<span class="sale-chip locacao" onclick="event.stopPropagation();openSaleModal('${placa}')">🟣 ${info.labelLocacao}</span>`;
+  return '';
+}
+
+function openSaleModal(placa) {
+  const sh = S.sheetsData;
+  const info = sh?.p0Info?.[placa] || {};
+  const both = info.presencial && info.locacao;
+  const batV = S.asb.find(v => v.placa === placa)?.bateria || info.bat_atual;
+  const bat = parseFloat(batV) || 0;
+  const loc = S.asb.find(v => v.placa === placa)?.local || info.loc || sh?.locations?.[placa] || '—';
+  const modelo = S.asb.find(v => v.placa === placa)?.modelo || info.modelo || '—';
+  const batC = bat < 12 ? 'red' : bat < 12.4 ? 'amber' : 'green';
+  const batLabel = bat < 12 ? '⚠ CRÍTICA' : bat < 12.4 ? 'ATENÇÃO' : 'OK';
+
+  document.getElementById('sm-plate').textContent = placa;
+  document.getElementById('sm-sub').textContent = modelo + ' · ' + loc;
+
+  // Header badges
+  let badges = '';
+  if (both) badges += `<span class="sale-chip both">🔄 AMBOS OS CANAIS</span>`;
+  else if (info.presencial) badges += `<span class="sale-chip presencial">🔴 ${info.labelPresencial||'CX Presencial'}</span>`;
+  else if (info.locacao) badges += `<span class="sale-chip locacao">🟣 ${info.labelLocacao||'CX 1 Locação'}</span>`;
+  document.getElementById('sm-badges').innerHTML = badges;
+
+  // Body
+  let body = '';
+
+  // Alert block
+  body += `<div class="sm-alert urgent">
+    🚨 <b>AÇÃO OBRIGATÓRIA:</b> Este veículo está confirmado em processo de venda.
+    A bateria precisa ser trocada ANTES da entrega ao driver.
+    ${bat < 12 ? `<br/>⚡ Tensão atual CRÍTICA (${bat.toFixed(2)}V) — troca imediata necessária.` : ''}
+  </div>`;
+
+  // Vehicle info
+  body += `<div class="sm-section">
+    <div class="sm-section-title">Dados do Veículo</div>
+    <div class="sm-row"><span class="sm-lbl">Placa</span><span class="sm-val">${placa}</span></div>
+    <div class="sm-row"><span class="sm-lbl">Modelo</span><span class="sm-val">${modelo}</span></div>
+    <div class="sm-row"><span class="sm-lbl">Localização</span><span class="sm-val">${loc}</span></div>
+    <div class="sm-row highlight"><span class="sm-lbl">Tensão bateria</span><span class="sm-val ${batC}">${bat > 0 ? bat.toFixed(2)+'V' : '—'} <span style="font-size:8px;">${batLabel}</span></span></div>
+    <div class="sm-row"><span class="sm-lbl">Estado bateria</span><span class="sm-val amber">BATERIA CRITICA-TROCAR</span></div>
+  </div>`;
+
+  // Sale channel info
+  body += `<div class="sm-section">
+    <div class="sm-section-title">Canal de Venda (planilha Controle Baterias ASB)</div>`;
+
+  if (info.presencial) {
+    body += `<div class="sm-sale-block presencial">
+      <div class="sm-sale-title presencial">🔴 ${info.labelPresencial || 'Base v2 - CX Presencial'}</div>
+      <div class="sm-sale-desc">
+        Veículo lançado na coluna <b>I</b> da planilha <i>METABASE - tratado</i>.<br/>
+        Modalidade presencial — entrega realizada na base com o driver presente.
+      </div>
+    </div>`;
+  }
+
+  if (info.locacao) {
+    body += `<div class="sm-sale-block locacao">
+      <div class="sm-sale-title locacao">🟣 ${info.labelLocacao || 'Base v2 - CX 1 Locação'}</div>
+      <div class="sm-sale-desc">
+        Veículo lançado na coluna <b>J</b> da planilha <i>METABASE - tratado</i>.<br/>
+        Modalidade locação — contrato de 1ª locação, entrega acordada com o driver.
+      </div>
+    </div>`;
+  }
+
+  if (both) {
+    body += `<div class="sm-alert warn">
+      ⚠ <b>Placa duplicada:</b> este veículo aparece nos dois canais (col I e col J).
+      Verificar com o time comercial qual canal é o correto antes de prosseguir.
+    </div>`;
+  }
+  body += `</div>`;
+
+  // Action checklist
+  body += `<div class="sm-section">
+    <div class="sm-section-title">Checklist — Antes da Entrega</div>
+    <div class="sm-row highlight"><span class="sm-lbl">1. Trocar bateria</span><span class="sm-val red">PENDENTE</span></div>
+    <div class="sm-row"><span class="sm-lbl">2. Confirmar tensão &gt; 12.4V após troca</span><span class="sm-val amber">verificar</span></div>
+    <div class="sm-row"><span class="sm-lbl">3. Dar baixa no repositório após troca</span><span class="sm-val amber">verificar</span></div>
+  </div>`;
+
+  document.getElementById('sm-body').innerHTML = body;
+  document.getElementById('sale-modal').classList.add('open');
+}
+
+function closeSaleModal() {
+  document.getElementById('sale-modal').classList.remove('open');
+}
+document.getElementById('sale-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSaleModal();
+});
 
 // ════════ CONFIG ════════
 function savAPI() {
