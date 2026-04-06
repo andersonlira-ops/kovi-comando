@@ -352,6 +352,7 @@ table.dt tr:hover td{background:var(--s3);}
     <div class="nav-tab" data-pg="bat" onclick="pg('bat')">🔋 BATERIAS ASB</div>
     <div class="nav-tab" data-pg="diag" onclick="pg('diag')">⚡ DIAGNÓSTICO</div>
     <div class="nav-tab" data-pg="fleet" onclick="pg('fleet')">🌐 ROTEAMENTO</div>
+    <div class="nav-tab" data-pg="tel" onclick="pg('tel')">📡 TELEMETRIA</div>
     <div class="nav-tab" data-pg="cfg" onclick="pg('cfg')">⚙ CONFIG</div>
   </div>
   <div class="topbar-r">
@@ -472,6 +473,46 @@ table.dt tr:hover td{background:var(--s3);}
 </div>
 </div>
 
+<div class="page" id="page-tel">
+<div class="pi">
+  <div class="card" style="margin-bottom:14px;">
+    <div class="sttl">Consulta de Telemetria (Metabase)</div>
+    <div style="display:flex; gap:10px; align-items:flex-end; margin-bottom:15px; flex-wrap:wrap;">
+      <div>
+        <label class="cflbl">Placa</label>
+        <input type="text" id="tel-placa" class="cfinp" style="margin-bottom:0; width:140px; font-weight: bold; color: var(--amber);" placeholder="ABC1D23"/>
+      </div>
+      <div>
+        <label class="cflbl">Data Inicial</label>
+        <input type="datetime-local" id="tel-start" class="cfinp" style="margin-bottom:0;"/>
+      </div>
+      <div>
+        <label class="cflbl">Data Final</label>
+        <input type="datetime-local" id="tel-end" class="cfinp" style="margin-bottom:0;"/>
+      </div>
+      <button class="cfbtn a" style="height:34px; padding: 0 16px; background:var(--amber); color:#000; font-weight:700;" onclick="buscarTelemetria()">🔍 Buscar Dados</button>
+    </div>
+    <div class="twrap">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Hora do evento</th>
+            <th>Evento</th>
+            <th>Velocidade</th>
+            <th>Tensão Bateria</th>
+            <th>Sinal GSM</th>
+            <th>Ignição</th>
+          </tr>
+        </thead>
+        <tbody id="tel-tbody">
+          <tr><td colspan="6" style="text-align:center;">Preencha os filtros acima para buscar os eventos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
 <div class="page" id="page-cfg">
 <div class="pi">
   <div class="g2">
@@ -483,13 +524,12 @@ table.dt tr:hover td{background:var(--s3);}
       <div class="cfst" id="apit"></div>
     </div>
     <div class="card">
-      <div class="sttl" style="margin-bottom:12px;">Supabase</div>
-      <label class="cflbl">URL do Projeto</label>
-      <input type="text" id="csburl" class="cfinp" placeholder="https://xxx.supabase.co"/>
-      <label class="cflbl">Anon Key</label>
-      <input type="password" id="csbkey" class="cfinp" placeholder="eyJhbGci..."/>
-      <div style="display:flex;gap:7px;"><button class="cfbtn a" onclick="savSB()">💾 Salvar</button><button class="cfbtn g" onclick="tstSB()">⚡ Testar</button></div>
-      <div class="cfst" id="sbt"></div>
+      <div class="sttl" style="margin-bottom:12px;">Google Bridge — Telemetria</div>
+      <div style="font-size:8px;color:var(--text2);line-height:1.8;margin-bottom:9px;">URL do Apps Script que serve a Telemetria da Placa (Eventos, Bateria, Velocidade).</div>
+      <label class="cflbl">Script URL — Telemetria</label>
+      <input type="text" id="ctel" class="cfinp" placeholder="https://script.google.com/macros/s/.../exec"/>
+      <div style="display:flex;gap:7px;"><button class="cfbtn a" onclick="savTel()">💾 Salvar</button></div>
+      <div class="cfst" id="telt"></div>
     </div>
     <div class="card">
       <div class="sttl" style="margin-bottom:12px;">Google Bridge — Monitor ASB</div>
@@ -537,24 +577,6 @@ table.dt tr:hover td{background:var(--s3);}
         <button class="cfbtn r" onclick="if(confirm('Limpar todo o repositório?')){clearAllRepo();}">🗑 Limpar Repositório</button>
       </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="sttl" style="margin-bottom:9px;">SQL — Tabelas Supabase</div>
-    <div style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:11px;font-size:8px;color:var(--blue);font-family:var(--mono);white-space:pre-wrap;line-height:1.9;max-height:180px;overflow-y:auto;">-- Criar tabelas no Supabase SQL Editor:
-
-CREATE TABLE IF NOT EXISTS kovi_historico (
-  id TEXT PRIMARY KEY, plate TEXT, model TEXT, state TEXT,
-  tech TEXT, date TEXT, dtcs TEXT[], solution TEXT, km INT,
-  status TEXT, created_at TIMESTAMPTZ DEFAULT now()
-);
-CREATE TABLE IF NOT EXISTS kovi_dtcs (
-  code TEXT PRIMARY KEY, desc TEXT, expl TEXT, sintomas TEXT,
-  causas TEXT, passos TEXT, sistema TEXT, sev TEXT, veiculo TEXT
-);
-ALTER TABLE kovi_historico ENABLE ROW LEVEL SECURITY;
-ALTER TABLE kovi_dtcs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "all" ON kovi_historico FOR ALL USING (true);
-CREATE POLICY "all" ON kovi_dtcs FOR ALL USING (true);</div>
   </div>
 </div>
 </div>
@@ -664,10 +686,9 @@ const S = {
   charts: {},
   sheetsData: null,
   api: () => localStorage.getItem('k_api') || '',
-  sbUrl: () => localStorage.getItem('k_sburl') || '',
-  sbKey: () => localStorage.getItem('k_sbkey') || '',
   asbUrl: () => localStorage.getItem('k_asburl') || '',
   mbUrl: () => localStorage.getItem('k_mburl') || '',
+  telUrl: () => localStorage.getItem('k_telurl') || '',
   sheetsUrl: () => localStorage.getItem('k_sheets_url') || '',
 };
 
@@ -1722,25 +1743,78 @@ function savAPI() {
   setSt('apit','ok','✓ Salva');
 }
 function clrAPI() { localStorage.removeItem('k_api'); document.getElementById('capi').value=''; setSt('apit','ok','✓ Removida'); }
-function savSB() {
-  const url=document.getElementById('csburl').value.trim();
-  const key=document.getElementById('csbkey').value.trim();
-  if (!url||!key) {setSt('sbt','err','⚠ URL e chave obrigatórios');return;}
-  localStorage.setItem('k_sburl',url); localStorage.setItem('k_sbkey',key);
-  setSt('sbt','ok','✓ Salvo');
-}
-async function tstSB() {
-  const url=S.sbUrl(),key=S.sbKey();
-  if (!url||!key){setSt('sbt','err','⚠ Configure primeiro');return;}
-  setSt('sbt','info','◌ Testando...');
-  try {
-    const r=await fetch(url.replace(/\/$/,'')+'/rest/v1/kovi_historico?limit=1',{headers:{apikey:key,Authorization:'Bearer '+key}});
-    if (r.ok||r.status===406||r.status===416) { setDot(0,'ok'); setSt('sbt','ok','✓ Conectado!'); }
-    else throw new Error('HTTP '+r.status);
-  } catch(e) { setDot(0,'err'); setSt('sbt','err','⚠ '+e.message); }
-}
+
+function savTel() { const v=document.getElementById('ctel').value.trim(); if(!v)return; localStorage.setItem('k_telurl',v); setSt('telt','ok','✓ URL salva'); }
 function savASB() { const v=document.getElementById('casb').value.trim(); if(!v)return; localStorage.setItem('k_asburl',v); setSt('asbt','ok','✓ URL salva'); }
 function savMB() { const v=document.getElementById('cmb').value.trim(); if(!v)return; localStorage.setItem('k_mburl',v); setSt('mbt','ok','✓ URL salva'); }
+
+// ════════ TELEMETRIA (Nova Função Incorporada) ════════
+async function buscarTelemetria() {
+  const placaInput = document.getElementById('tel-placa');
+  const startInput = document.getElementById('tel-start');
+  const endInput = document.getElementById('tel-end');
+  const tbody = document.getElementById('tel-tbody');
+
+  if (!placaInput || !startInput || !endInput || !tbody) return;
+
+  const placa = placaInput.value.toUpperCase().trim();
+  const start = startInput.value;
+  const end = endInput.value;
+
+  if(!placa || !start || !end) {
+    notify('Preencha placa, data inicial e data final', 'warn');
+    return;
+  }
+
+  const scriptUrl = S.telUrl();
+  if(!scriptUrl) {
+    notify('Configure a URL da Telemetria na aba CONFIG', 'err');
+    pg('cfg');
+    return;
+  }
+
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><div class="spin" style="margin: 10px auto;"></div>Buscando dados...</td></tr>';
+
+  try {
+    const fetchUrl = `${scriptUrl}?placa=${encodeURIComponent(placa)}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
+    
+    const r = await fetch(fetchUrl);
+    const data = await r.json();
+    
+    if(data.error || !Array.isArray(data)) {
+        throw new Error(data.error || 'Erro inesperado ao buscar dados da planilha.');
+    }
+    
+    if(data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum evento encontrado nesse período.</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = data.map(row => {
+      const stringTensao = String(row['Tensão Bateria:'] || '0').replace(',', '.');
+      const tensaoNumero = parseFloat(stringTensao);
+      const isLowBattery = tensaoNumero > 0 && tensaoNumero < 12;
+
+      return `
+        <tr>
+          <td class="tmono">${row['Hora do evento'] || '—'}</td>
+          <td style="color: ${row['Evento'] === 'MODO HIBERNANDO' ? 'var(--blue)' : 'var(--text)'}; font-weight: 500;">${row['Evento'] || '—'}</td>
+          <td>${row['Velocidade:'] || '0'} km/h</td>
+          <td class="tmono" style="color: ${isLowBattery ? 'var(--red)' : 'var(--green)'}">${row['Tensão Bateria:'] || '—'}V</td>
+          <td>${row['Qualidade do Sinal:'] || '—'}</td>
+          <td>${row['Ignicao:'] || '—'}</td>
+        </tr>
+      `;
+    }).join('');
+    
+    notify(`✓ ${data.length} eventos carregados`, 'ok');
+    
+  } catch(e) {
+    console.error("Erro no fetch da telemetria:", e);
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--red);">⚠ Erro: ${e.message}</td></tr>`;
+    notify('Erro ao buscar telemetria. Verifique sua conexão.', 'err');
+  }
+}
 
 // ════════ UTILS ════════
 function setDot(n, s) {
@@ -1751,12 +1825,11 @@ function setDot(n, s) {
 }
 function setSt(id, t, msg) { const e=document.getElementById(id); if(e){e.textContent=msg;e.className='cfst '+t;} }
 
-
 // ════════ BOOT & SYNC ════════
 function loadCfg() {
   const a=S.asbUrl(); if(a){document.getElementById('casb').value=a;}
   const m=S.mbUrl(); if(m){document.getElementById('cmb').value=m;}
-  const su=S.sbUrl(); if(su){document.getElementById('csburl').value=su;}
+  const tel=S.telUrl(); if(tel){document.getElementById('ctel').value=tel;}
   if(S.api()){document.getElementById('capi').value='●'.repeat(16);}
   const sh=S.sheetsUrl(); if(sh){const el=document.getElementById('csht');if(el)el.value=sh;}
   loadCachedSheets();
